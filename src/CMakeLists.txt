@@ -1,4 +1,5 @@
 add_compile_definitions(_POSIX_C_SOURCE=200809L _XOPEN_SOURCE=700)
+add_definitions(-D_BSD_SOURCE)
 
 if(APPLE)
     add_definitions(-D_DARWIN_C_SOURCE)
@@ -8,6 +9,8 @@ find_program(LINT "clang-tidy")
 IF (LINT)
     set(CMAKE_C_CLANG_TIDY "clang-tidy;-checks=*,-llvmlibc-restrict-system-libc-headers,-cppcoreguidelines-init-variables,-clang-analyzer-security.insecureAPI.strcpy,-concurrency-mt-unsafe,-android-cloexec-accept,-android-cloexec-dup,-google-readability-todo,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-cert-dcl03-c,-hicpp-static-assert,-misc-static-assert,-altera-struct-pack-align,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling;--quiet")
 ENDIF ()
+
+include(FindPCAP.cmake)
 
 # Make an executable
 add_executable(TARGET ${COMMON_SOURCE_LIST} ${TARGET_SOURCE_LIST} ${HEADER_LIST})
@@ -42,7 +45,9 @@ find_library(LIBM m REQUIRED)
 find_library(LIBSOCKET socket)
 
 target_link_libraries(TARGET PRIVATE ${LIBM})
+target_link_libraries(TARGET PRIVATE ${PCAP_LIBRARY})
 target_link_libraries(SNIFFER PRIVATE ${LIBM})
+target_link_libraries(SNIFFER PRIVATE ${PCAP_LIBRARY})
 
 set_target_properties(TARGET PROPERTIES OUTPUT_NAME "TARGET")
 set_target_properties(SNIFFER PROPERTIES OUTPUT_NAME "SNIFFER")

@@ -25,7 +25,7 @@
 #include <getopt.h>
 #include <regex.h>
 #include <inttypes.h>
-#include <pcap.h>
+#include <pcap/bpf.h>
 
 
 #define DEFAULT_PORT 53000
