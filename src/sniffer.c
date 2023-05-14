@@ -5,12 +5,12 @@
 
 
 int main(int argc, char *argv[]) {
-    int max_socket_num; // IMPORTANT Don't forget to set +1
     unsigned int expected_ack = 0;
     char buffer[256] = {0};
-    char response[256] = {0};
-    fd_set read_fds;
-    int result;
+    char receive[256] = {0};
+    fd_set read_fds, copy_fds;
+    int fd_max, fd_num;
+    int exit_flag = 0;
     struct timeval timeout;
     struct options_sniffer opts;
 
@@ -18,54 +18,45 @@ int main(int argc, char *argv[]) {
     options_sniffer_init(&opts);
     parse_sniffer_command(argc, argv, &opts);
     opts.target_socket = options_sniffer_process(&opts);
-    if (opts.target_socket == -1) {
-        printf("Connect() fail");
-    }
 
-    max_socket_num = opts.target_socket;
+    fd_max = opts.target_socket;
+    FD_SET(STDIN_FILENO, &read_fds);
+    FD_SET(opts.target_socket, &read_fds);
 
     while (1) {
-        FD_SET(STDIN_FILENO, &read_fds);
-        FD_SET(opts.target_socket, &read_fds);
-
-        // receive time out config
-        // Set 1 ms timeout counter
-        // TODO: Sender can change the timeout to resend the packet
+        if (exit_flag == 1) break;
+        copy_fds = read_fds;
         timeout.tv_sec = 1;
         timeout.tv_usec = 0;
-        if (strlen(buffer) == 0) {
-            if (FD_ISSET(STDIN_FILENO, &read_fds)) {
-                if (fgets(buffer, sizeof(buffer), stdin)) {
-                    if (strstr(buffer, START) != NULL) {
+
+        fd_num = select(fd_max + 1, &copy_fds, 0, 0, &timeout);
+        if (fd_num == -1) {
+            perror("Select() failed");
+            exit(EXIT_FAILURE);
+        } else if (fd_num == 0) continue; // time out
+
+        for (int i = 0; i < fd_max + 1; i++) {
+            if (FD_ISSET(i, &copy_fds)) {
+                if (i == opts.target_socket) {
+                    read(opts.target_socket, receive, sizeof(receive));
+                    printf("PACKET = [ %s ]\n", receive);
+                    memset(receive, 0, sizeof(char) * 256);
+                }
+                if (i == STDIN_FILENO) {
+                    if (fgets(buffer, sizeof(buffer), stdin)) {
+                        buffer[strlen(buffer) - 1] = 0;
+                        if (strcmp(buffer, EXIT) == 0) {
+                            printf("EXIT program");
+                            close(opts.target_socket);
+                            exit_flag = 1;
+                            break;
+                        }
+                        write(opts.target_socket, buffer, sizeof(buffer));
                         memset(buffer, 0, sizeof(char) * 256);
-                    }
-                    if (strcmp(buffer, STOP) != 0) {
-                        write(opts.target_socket, buffer, sizeof(buffer));
-                        printf("STOP Sniffing on the target");
-                    }
-                    if (strcmp(buffer, EXIT) != 0) {
-                        write(opts.target_socket, buffer, sizeof(buffer));
-                        printf("EXIT program");
-                        close(opts.target_socket);
-                        break;
                     }
                 }
             }
         }
-        result = select(max_socket_num + 1, &read_fds, NULL, NULL, &timeout);
-
-        if (result < 0) {
-            perror("Select() FAILED\n");
-            exit(EXIT_FAILURE);
-        } else if (result == 0) {
-            write(opts.target_socket, buffer, sizeof(buffer));
-        } else {
-            read(opts.target_socket, response, sizeof(response));
-            // TODO: need to make UI good
-            printf("PACKET = [ %s ]\n", response);
-        }
-        memset(buffer, 0, sizeof(char) * 256);
-        memset(response, 0, sizeof(char) * 256);
     }
 
     close(opts.sniffer_socket);
