@@ -49,8 +49,8 @@ target_link_libraries(TARGET PRIVATE ${PCAP_LIBRARY})
 target_link_libraries(SNIFFER PRIVATE ${LIBM})
 target_link_libraries(SNIFFER PRIVATE ${PCAP_LIBRARY})
 
-set_target_properties(TARGET PROPERTIES OUTPUT_NAME "TARGET")
-set_target_properties(SNIFFER PROPERTIES OUTPUT_NAME "SNIFFER")
+set_target_properties(TARGET PROPERTIES OUTPUT_NAME "target")
+set_target_properties(SNIFFER PROPERTIES OUTPUT_NAME "sniffer")
 
 install(TARGETS TARGET DESTINATION bin)
 install(TARGETS SNIFFER DESTINATION bin)
