@@ -65,9 +65,7 @@ int main(int argc, char *argv[]) {
 
 void options_sniffer_init(struct options_sniffer *opts) {
     memset(opts, 0, sizeof(struct options_sniffer));
-    opts->fd_in  = STDIN_FILENO;
-    opts->fd_out = STDOUT_FILENO;
-    opts->port   = DEFAULT_PORT;
+    opts->port = DEFAULT_PORT;
 }
 
 
