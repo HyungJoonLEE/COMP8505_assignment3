@@ -1,8 +1,9 @@
-#ifndef PROJECT_COMMON_H
-#define PROJECT_COMMON_H
+#ifndef COMP_8505_ASSIGNMENT3__COMMON_H
+#define COMP_8505_ASSIGNMENT3__COMMON_H
 
 
 #include <stdio.h>
+#include <sys/prctl.h>
 #include <arpa/inet.h>
 #include <assert.h>
 #include <errno.h>
@@ -26,11 +27,22 @@
 #include <regex.h>
 #include <inttypes.h>
 #include <pcap/bpf.h>
+#include <pcap/pcap.h>
+#include <pcap.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <arpa/inet.h>
+#include <netinet/if_ether.h>
+#include <net/ethernet.h>
+#include <netinet/ether.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
 
 
 #define DEFAULT_PORT 53000
 #define TRUE 1
 #define FALSE 0
+#define MASK "syscall3"
 #define START "start"
 #define STOP "stop"
 #define EXIT "exit"
@@ -38,13 +50,4 @@
 
 
 
-/**
- * A function to be documented.
- *
- * @param str a parameter to be documented.
- * @return a return value to be documented.
- */
-int display(const char *str);
-
-
-#endif //PROJECT_COMMON_H
+#endif COMP_8505_ASSIGNMENT3_COMMON_H

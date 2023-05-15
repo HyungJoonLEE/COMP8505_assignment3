@@ -13,15 +13,9 @@ ENDIF ()
 include(FindPCAP.cmake)
 
 # Make an executable
-add_executable(TARGET ${COMMON_SOURCE_LIST} ${TARGET_SOURCE_LIST} ${HEADER_LIST})
 add_executable(SNIFFER ${COMMON_SOURCE_LIST} ${SNIFFER_SOURCE_LIST} ${HEADER_LIST})
 
 # We need this directory, and users of our library will need it too
-target_include_directories(TARGET PRIVATE ../include)
-target_include_directories(TARGET PRIVATE /usr/include)
-target_include_directories(TARGET PRIVATE /usr/local/include)
-target_link_directories(TARGET PRIVATE /usr/lib)
-target_link_directories(TARGET PRIVATE /usr/local/lib)
 target_include_directories(SNIFFER PRIVATE ../include)
 target_include_directories(SNIFFER PRIVATE /usr/include)
 target_include_directories(SNIFFER PRIVATE /usr/local/include)
@@ -30,11 +24,6 @@ target_link_directories(SNIFFER PRIVATE /usr/local/lib)
 
 
 # All users of this library will need at least C17
-target_compile_features(TARGET PUBLIC c_std_17)
-target_compile_options(TARGET PRIVATE -g)
-target_compile_options(TARGET PRIVATE -fstack-protector-all -ftrapv)
-target_compile_options(TARGET PRIVATE -Wpedantic -Wall -Wextra)
-target_compile_options(TARGET PRIVATE -Wdouble-promotion -Wformat-nonliteral -Wformat-security -Wformat-y2k -Wnull-dereference -Winit-self -Wmissing-include-dirs -Wswitch-default -Wswitch-enum -Wunused-local-typedefs -Wstrict-overflow=5 -Wmissing-noreturn -Walloca -Wfloat-equal -Wdeclaration-after-statement -Wshadow -Wpointer-arith -Wabsolute-value -Wundef -Wexpansion-to-defined -Wunused-macros -Wno-endif-labels -Wbad-function-cast -Wcast-qual -Wwrite-strings -Wconversion -Wdangling-else -Wdate-time -Wempty-body -Wsign-conversion -Wfloat-conversion -Waggregate-return -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations -Wpacked -Wredundant-decls -Wnested-externs -Winline -Winvalid-pch -Wlong-long -Wvariadic-macros -Wdisabled-optimization -Wstack-protector -Woverlength-strings)
 target_compile_features(SNIFFER PUBLIC c_std_17)
 target_compile_options(SNIFFER PRIVATE -g)
 target_compile_options(SNIFFER PRIVATE -fstack-protector-all -ftrapv)
@@ -44,15 +33,11 @@ target_compile_options(SNIFFER PRIVATE -Wdouble-promotion -Wformat-nonliteral -W
 find_library(LIBM m REQUIRED)
 find_library(LIBSOCKET socket)
 
-target_link_libraries(TARGET PRIVATE ${LIBM})
-target_link_libraries(TARGET PRIVATE ${PCAP_LIBRARY})
 target_link_libraries(SNIFFER PRIVATE ${LIBM})
 target_link_libraries(SNIFFER PRIVATE ${PCAP_LIBRARY})
 
-set_target_properties(TARGET PROPERTIES OUTPUT_NAME "target")
 set_target_properties(SNIFFER PROPERTIES OUTPUT_NAME "sniffer")
 
-install(TARGETS TARGET DESTINATION bin)
 install(TARGETS SNIFFER DESTINATION bin)
 
 # IDEs should put the headers in a nice place
@@ -68,6 +53,5 @@ add_custom_target(
         -i
         ${HEADER_LIST}
         ${COMMON_SOURCE_LIST}
-        ${TARGET_SOURCE_LIST}
         ${SNIFFER_SOURCE_LIST}
 )

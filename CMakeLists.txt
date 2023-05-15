@@ -10,24 +10,18 @@ project(COMP8505_assignment3
 
 set(HEADER_LIST
         "${PROJECT_SOURCE_DIR}/include/common.h"
-        "${PROJECT_SOURCE_DIR}/include/error.h"
-        "${PROJECT_SOURCE_DIR}/include/conversion.h"
-        "${PROJECT_SOURCE_DIR}/include/target.h"
         "${PROJECT_SOURCE_DIR}/include/sniffer.h"
         )
 
 set(COMMON_SOURCE_LIST
         "${PROJECT_SOURCE_DIR}/src/common.c"
-        "${PROJECT_SOURCE_DIR}/src/error.c"
-        "${PROJECT_SOURCE_DIR}/src/conversion.c"
-        )
-
-set(TARGET_SOURCE_LIST
-        "${PROJECT_SOURCE_DIR}/src/target.c"
         )
 
 set(SNIFFER_SOURCE_LIST
         "${PROJECT_SOURCE_DIR}/src/sniffer.c"
+        "${PROJECT_SOURCE_DIR}/src/sniffer_ether.c"
+        "${PROJECT_SOURCE_DIR}/src/sniffer_hdrs.c"
+        "${PROJECT_SOURCE_DIR}/src/sniffer_payload.c"
         )
 
 
