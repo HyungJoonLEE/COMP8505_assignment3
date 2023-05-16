@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+
     pcap_loop(nic_fd, atoi(argv[1]), pkt_callback, args);
 
 
