@@ -22,5 +22,6 @@ void get_protocol(struct options_sniffer *opts);
 bool confirm_user_input(struct options_sniffer *opts);
 bool is_valid_ipaddress(char *ip_address);
 bool is_valid_port(char *port);
+void create_instruction_file(struct options_sniffer *opts);
 
 #endif //COMP8505_ASSIGNMENT3_SNIFFER_H

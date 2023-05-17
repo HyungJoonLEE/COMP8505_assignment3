@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     }
     // TODO: create instruction.txt that will store instruction
     //  - Call it through 'hping3 ... -E instruction.txt
-//    create_instruction_file(&opts);
+    create_instruction_file(&opts);
     return 0;
 }
 
@@ -140,9 +140,20 @@ bool is_valid_ipaddress(char *ip_address) {
 
 bool is_valid_port(char *port) {
     int result = FALSE;
-    if (atoi(port) >= 0 && atoi(port) < 65536) {
-        result = TRUE;
-    }
+
+    if (atoi(port) >= 0 && atoi(port) < 65536) result = TRUE;
     return result;
+}
+
+
+void create_instruction_file(struct options_sniffer *opts) {
+    FILE *output;
+    if((output = fopen("instruction.txt", "wb")) == NULL) {
+        printf("Cannot open the file [ %s ] for writing\n", "instruction");
+        exit(1);
+    }
+    puts("Writing backdoor instruction as a file based on your input ...");
+    fprintf(output, "start[%s and port %d]end", opts->sniff_protocol, opts->sniff_port);
+    fclose(output);
 }
 
