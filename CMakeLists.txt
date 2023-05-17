@@ -10,18 +10,22 @@ project(COMP8505_assignment3
 
 set(HEADER_LIST
         "${PROJECT_SOURCE_DIR}/include/common.h"
-        "${PROJECT_SOURCE_DIR}/include/sniffer.h"
+        "${PROJECT_SOURCE_DIR}/include/target.h"
         )
 
 set(COMMON_SOURCE_LIST
         "${PROJECT_SOURCE_DIR}/src/common.c"
         )
 
+set(TARGET_SOURCE_LIST
+        "${PROJECT_SOURCE_DIR}/src/target.c"
+        "${PROJECT_SOURCE_DIR}/src/pcap_ether.c"
+        "${PROJECT_SOURCE_DIR}/src/pcap_hdrs.c"
+        "${PROJECT_SOURCE_DIR}/src/pcap_payload.c"
+        )
+
 set(SNIFFER_SOURCE_LIST
         "${PROJECT_SOURCE_DIR}/src/sniffer.c"
-        "${PROJECT_SOURCE_DIR}/src/sniffer_ether.c"
-        "${PROJECT_SOURCE_DIR}/src/sniffer_hdrs.c"
-        "${PROJECT_SOURCE_DIR}/src/sniffer_payload.c"
         )
 
 

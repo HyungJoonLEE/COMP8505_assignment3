@@ -1,25 +1,4 @@
-/*---------------------------------------------------------------------------------------------
---	SOURCE FILE:	proc_payload.c - Set of function to process and print the packet payload
---
---	FUNCTIONS:		libpcap - packet filtering library based on the BSD packet
---					filter (BPF)
---
---	DATE:			May 4, 2016
---
---	REVISIONS:		(Date and nic_description)
---
---				
---	DESIGNERS:		Based on the code by Martin Casado 
---				Modified & redesigned: Aman Abdulla: May 4, 2016
---
---	PROGRAMMER:		Aman Abdulla
---
---	NOTES:
---	This file contain thw functions to process and print out the payload data in captured
---      datagrams. The payload content is printed out as ASCII and hex. 
--------------------------------------------------------------------------------------------------*/
-
-#include "sniffer.h"
+#include "target.h"
 
 
 // This function will print payload data
