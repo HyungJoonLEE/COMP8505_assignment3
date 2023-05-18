@@ -12,25 +12,27 @@
 #define ETHER_HDRLEN 14
 #endif
 
-struct options_sniffer {
+struct options_target {
     in_port_t port;
     char protocol[5];
     unsigned int count;
-    bool sniffer_flag
+    char decrypt_instruction[64];
+    bool target_flag;
 };
 
-extern struct options_sniffer opts;
 
 // Function Prototypes
-void options_sniffer_init(struct options_sniffer *opts);
+void options_target_init();
 void program_setup(int argc, char *argv[]);
-u_int16_t handle_ethernet (u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet);
-void handle_IP (u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet);
-void handle_TCP (u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet);
+u_int16_t handle_ethernet (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet);
+void handle_IP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet);
+void handle_TCP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet);
+void handle_UDP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet);
 void print_payload (const u_char *, int);
 void print_hex_ascii_line (const u_char *, int, int);
-void pkt_callback(u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet);
-
+void pkt_callback(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet);
+void decrypt_payload(const u_char *payload);
+void extract_square_bracket_string(const char* input);
 
 /*
  * Structure of an internet header, stripped of all options.
@@ -82,5 +84,14 @@ struct sniff_tcp {
     u_short th_sum;                 /* checksum */
     u_short th_urp;                 /* urgent pointer */
 };
+
+
+struct sniff_udp {
+    u_int16_t uh_sport;                /* source port */
+    u_int16_t uh_dport;                /* destination port */
+    u_int16_t uh_ulen;                 /* udp length */
+    u_int16_t uh_sum;                  /* udp checksum */
+};
+
 
 #endif COMP_8505_ASSIGNMENT3_SNIFFER_H

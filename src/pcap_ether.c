@@ -1,8 +1,7 @@
 #include "target.h"
+#include "extern.h"
 
-struct options_sniffer opts;
-
-u_int16_t handle_ethernet (u_char *args,const struct pcap_pkthdr* pkthdr,const u_char* packet) {
+u_int16_t handle_ethernet (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet) {
     u_int caplen = pkthdr->caplen;
     u_int length = pkthdr->len;
     struct ether_header *eptr;  /* net/ethernet.h */
@@ -17,7 +16,7 @@ u_int16_t handle_ethernet (u_char *args,const struct pcap_pkthdr* pkthdr,const u
     eptr = (struct ether_header *) packet;
     ether_type = ntohs(eptr->ether_type);
 
-    if (opts.sniffer_flag == 1) {
+    if (opts.target_flag == TRUE) {
         // Print SOURCE DEST TYPE LENGTH fields
         printf("[ Ethernet Header ]\n");
         printf("    %s -> ", ether_ntoa((struct ether_addr *) eptr->ether_shost));

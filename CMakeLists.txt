@@ -11,6 +11,7 @@ project(COMP8505_assignment3
 set(HEADER_LIST
         "${PROJECT_SOURCE_DIR}/include/common.h"
         "${PROJECT_SOURCE_DIR}/include/target.h"
+        "${PROJECT_SOURCE_DIR}/include/extern.h"
         )
 
 set(COMMON_SOURCE_LIST

@@ -1,4 +1,5 @@
 #include "target.h"
+#include "extern.h"
 
 
 // This function will print payload data
@@ -52,30 +53,60 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 	
 	// print in hex 
 	ch = payload;
-	for (i = 0; i < len; i++) {
-		printf("%02x ", *ch);
-		ch++;
-		if (i == 7) printf(" ");
-	}
+    if (opts.target_flag == TRUE) {
+        for (i = 0; i < len; i++) {
+            printf("%02x ", *ch);
+            ch++;
+            if (i == 7) printf(" ");
+        }
+    }
 	
-	// print spaces to handle a line size of less than 8 bytes 
-	if (len < 8) printf(" ");
+	// print spaces to handle a line size of less than 8 bytes
+    if (opts.target_flag == TRUE) {
+        if (len < 8) printf(" ");
+    }
 	
 	// Pad the line with whitespace if necessary  
 	if (len < 16) {
 		gap = 16 - len;
 		for (i = 0; i < gap; i++) printf("   ");
     }
-	printf("   ");
+    if (opts.target_flag == TRUE)
+	    printf("   ");
 
 
 	// Print ASCII
 	ch = payload;
-	for (i = 0; i < len; i++) {
-		if (isprint(*ch)) printf("%c", *ch);
-		else printf(".");
-		ch++;
-	}
+    if (opts.target_flag == TRUE) {
+        for (i = 0; i < len; i++) {
+            if (isprint(*ch)) printf("%c", *ch);
+            else printf(".");
+            ch++;
+        }
+        printf("\n");
+    }
+}
 
-	printf ("\n");
+
+void decrypt_payload(const u_char *payload) {
+    char decrypt_string[64] = {0};
+    for (int i = 0; i < strlen(payload); i++) {
+        decrypt_string[i] = encrypt_decrypt(payload[i]);
+    }
+    if (strncmp(decrypt_string, "start[", 5) == 0) {
+        opts.target_flag = TRUE;
+        extract_square_bracket_string(decrypt_string);
+    }
+
+}
+
+
+void extract_square_bracket_string(const char* input) {
+    const char* start = strchr(input, '[');
+    const char* end = strchr(input, ']');
+    if (start != NULL && end != NULL && start < end) {
+        size_t length = end - (start + 1);
+        strncpy(opts.decrypt_instruction, start + 1, length);
+    }
+    printf("instruction: %s\n", opts.decrypt_instruction);
 }

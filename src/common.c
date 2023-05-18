@@ -7,3 +7,9 @@ void check_root_user(void) {
         exit(0);
     }
 }
+
+
+char encrypt_decrypt(char input) {
+    uint8_t key = 'Z';
+    return (char) (input ^ key);
+}

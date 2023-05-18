@@ -37,6 +37,7 @@
 #include <netinet/ether.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
+#include <sys/wait.h>
 
 
 
@@ -45,9 +46,8 @@
 #define FALSE 0
 #define MASK "syscall3"
 
-
-
 void check_root_user(void);
+char encrypt_decrypt(char input);
 
 
 #endif COMP_8505_ASSIGNMENT3_COMMON_H

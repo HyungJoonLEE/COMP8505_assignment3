@@ -1,5 +1,7 @@
 #include "target.h"
+#include "extern.h"
 
+struct options_target opts;
 
 int main(int argc, char *argv[]) {
     char errbuf[PCAP_ERRBUF_SIZE] = {0};
@@ -9,7 +11,7 @@ int main(int argc, char *argv[]) {
     pcap_t* nic_fd;
     u_char* args = NULL;
 
-    options_sniffer_init(&opts);
+    options_target_init(opts);
 
     program_setup(argc, argv);              /* set process name, get root privilege */
     nic_device = pcap_lookupdev(errbuf);    /* get interface */
@@ -25,17 +27,16 @@ int main(int argc, char *argv[]) {
     }
 
     // TODO: pcap filter analyze
-
     pcap_loop(nic_fd, (int) opts.count, pkt_callback, args);
 
     return EXIT_SUCCESS;
 }
 
 
-void options_sniffer_init(struct options_sniffer *opts) {
-    memset(opts, 0, sizeof(struct options_sniffer));
-    opts->count = DEFAULT_COUNT;
-    opts->sniffer_flag = TRUE;
+void options_target_init() {
+    memset(&opts, 0, sizeof(struct options_target));
+    opts.count = DEFAULT_COUNT;
+    opts.target_flag = FALSE;
 }
 
 
