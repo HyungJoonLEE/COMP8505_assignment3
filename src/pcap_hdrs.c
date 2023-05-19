@@ -62,7 +62,8 @@ void handle_IP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pa
             printf("    Version: %d\n", version);
             printf("    Header Length: %d\n", hlen);
             printf("    Fragment Offset: %d\n", off);
-            printf("    IP: %s -> %s\n", inet_ntoa(ip->ip_src), inet_ntoa(ip->ip_dst));
+            printf("    IP: %s -> ", inet_ntoa(ip->ip_src));
+            printf("%s\n", inet_ntoa(ip->ip_dst));
         }
     }
 

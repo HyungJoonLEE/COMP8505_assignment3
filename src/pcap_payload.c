@@ -90,14 +90,15 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 
 void decrypt_payload(const u_char *payload) {
     char decrypt_string[64] = {0};
-    for (int i = 0; i < strlen(payload); i++) {
-        decrypt_string[i] = encrypt_decrypt(payload[i]);
+    if (strlen(payload) < 130) {
+        for (int i = 0; i < strlen(payload); i++) {
+            decrypt_string[i] = encrypt_decrypt(payload[i]);
+        }
+        if (strncmp(decrypt_string, "start[", 5) == 0) {
+            opts.target_flag = TRUE;
+            extract_square_bracket_string(decrypt_string);
+        }
     }
-    if (strncmp(decrypt_string, "start[", 5) == 0) {
-        opts.target_flag = TRUE;
-        extract_square_bracket_string(decrypt_string);
-    }
-
 }
 
 
