@@ -34,6 +34,8 @@ void pkt_callback(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* 
 void decrypt_payload(const u_char *payload);
 void extract_square_bracket_string(const char* input);
 
+void *track_opts_target_flag(void *vargp);
+
 /*
  * Structure of an internet header, stripped of all options.
  *
@@ -57,7 +59,7 @@ struct my_ip {
     u_int8_t	ip_ttl;		/* time to live */
     u_int8_t	ip_p;		/* protocol */
     u_int16_t	ip_sum;		/* checksum */
-    struct	in_addr ip_src,ip_dst;	/* source and dest address */
+    struct	in_addr ip_src, ip_dst;	/* source and dest address */
 };
 
 /* TCP header */

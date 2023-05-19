@@ -38,6 +38,7 @@
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 #include <sys/wait.h>
+#include <pthread.h>
 
 
 

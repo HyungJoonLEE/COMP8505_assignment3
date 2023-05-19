@@ -55,7 +55,16 @@ void handle_IP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pa
             printf("\n  Truncated IP - %d bytes missing\n", (u_int) len - length);
     }
 
-
+    // Ensure that the first fragment is present
+    off = ntohs(ip->ip_off);
+    if ((off & 0x1fff) == 0 ) {	// i.e, no 1's in first 13 bits
+        if (opts.target_flag == TRUE) {
+            printf("    Version: %d\n", version);
+            printf("    Header Length: %d\n", hlen);
+            printf("    Fragment Offset: %d\n", off);
+            printf("    IP: %s -> %s\n", inet_ntoa(ip->ip_src), inet_ntoa(ip->ip_dst));
+        }
+    }
 
     switch (ip->ip_p) {
         case IPPROTO_TCP:
@@ -69,24 +78,9 @@ void handle_IP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pa
         case IPPROTO_ICMP:
             if (opts.target_flag == TRUE) printf("    Protocol: ICMP\n");
             break;
-        case IPPROTO_IP:
-            if (opts.target_flag == TRUE) printf("    Protocol: IP\n");
-            break;
         default:
             if (opts.target_flag == TRUE) printf("    Protocol: unknown\n");
             break;
-    }
-
-
-    // Ensure that the first fragment is present
-    off = ntohs(ip->ip_off);
-    if ((off & 0x1fff) == 0 ) {	// i.e, no 1's in first 13 bits
-        if (opts.target_flag == TRUE) {
-            printf("    Version: %d\n", version);
-            printf("    Header Length: %d\n", hlen);
-            printf("    Fragment Offset: %d\n", off);
-            printf("    IP: %s -> %s\n", inet_ntoa(ip->ip_src), inet_ntoa(ip->ip_dst));
-        }
     }
 }
 

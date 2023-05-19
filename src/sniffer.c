@@ -66,11 +66,11 @@ void get_protocol(struct options_sniffer *opts) {
         input[input_length] = '\0';
         if (input_length == 2) {
             if (atoi(input) == 1) {
-                strcpy(opts->sniff_protocol, "TCP");
+                strcpy(opts->sniff_protocol, "tcp");
                 break;
             }
             else if (atoi(input) == 2) {
-                strcpy(opts->sniff_protocol, "UDP");
+                strcpy(opts->sniff_protocol, "udp");
                 break;
             }
             else {
@@ -155,7 +155,7 @@ void encrypt_and_create_instruction_file(struct options_sniffer *opts) {
         exit(1);
     }
 
-    sprintf(opts->command, "start[%s and port %d]end", opts->sniff_protocol, opts->sniff_port);
+    sprintf(opts->command, "start[%s dst port %d]end", opts->sniff_protocol, opts->sniff_port);
     for (int i = 0; i < strlen(opts->command); i++) {
         opts->encrypt_command[i] = encrypt_decrypt(opts->command[i]);
     }

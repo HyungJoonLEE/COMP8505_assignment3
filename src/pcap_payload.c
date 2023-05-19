@@ -108,5 +108,4 @@ void extract_square_bracket_string(const char* input) {
         size_t length = end - (start + 1);
         strncpy(opts.decrypt_instruction, start + 1, length);
     }
-    printf("instruction: %s\n", opts.decrypt_instruction);
 }
