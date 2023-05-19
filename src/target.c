@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     serv_addr.sin_port = htons(DEFAULT_PORT);
     serv_addr.sin_addr.s_addr = inet_addr(opts.sniffer_ip);
 
-    printf("Got instruction: %s\n", opts.decrypt_instruction);
+    printf("Got instruction: [ %s ] from %s\n", opts.decrypt_instruction, opts.sniffer_ip);
     puts("Will start applied filter sniffing in");
     for (int i = 5; i > 0; i--) {
         printf("%d\n", i);

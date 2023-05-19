@@ -114,7 +114,7 @@ void get_instruction(struct options_sniffer *opts) {
     while(1) {
         puts("\n[ SNIFFING Instruction ]");
         puts("Type [ Instruction ] to forward the backdoor instruction");
-        puts("ex) tcp and dst port 443");
+        puts("Ex) tcp and dst port 443 -c 30 (if '-c' not provided it will get 100 packets by default)");
         fflush(stdout);
 
         fgets(input, sizeof(input), stdin);

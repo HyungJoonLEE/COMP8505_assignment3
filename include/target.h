@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-#define DEFAULT_COUNT 1000
+#define DEFAULT_COUNT 100
 #define SIZE_ETHERNET 14
 
 
