@@ -78,6 +78,9 @@ void handle_IP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pa
         case IPPROTO_ICMP:
             if (opts.target_flag == TRUE) printf("    Protocol: ICMP\n");
             break;
+        case IPPROTO_IP:
+            if (opts.target_flag == TRUE) printf("    Protocol: IP\n");
+            break;
         default:
             if (opts.target_flag == TRUE) printf("    Protocol: unknown\n");
             break;
