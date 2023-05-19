@@ -1,3 +1,27 @@
+/*---------------------------------------------------------------------------------------------
+--	SOURCE FILE:	pkt_sniffer.c -   A simple but complete packet capture
+--					program that will capture and parse datagrams
+--
+--	FUNCTIONS:		libpcap - packet filtering library based on the BSD packet
+--					filter (BPF)
+--
+--	DATE:			May 10, 2023
+--
+--	REVISIONS:		(Date and nic_description)
+--
+--				    May 15, 2023
+--				    Added personal function for assignment
+--
+--	DESIGNERS:		Based on the code by Martin Casado, Aman Abdulla
+--					Code was also taken from tcpdump source, namely from the following files:
+--					print-ether.c
+--					print-ip.c
+--					ip.h
+--					Modified & redesigned: Aman Abdulla: 2006, 2014, 2016
+--
+--	Student:		HyungJoon LEE
+-------------------------------------------------------------------------------------------------*/
+
 #include "sniffer.h"
 
 

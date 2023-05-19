@@ -1,3 +1,26 @@
+/*---------------------------------------------------------------------------------------------
+--	SOURCE FILE:	proc_hdrs.c -   program to process the packet headers
+--
+--	FUNCTIONS:		libpcap - packet filtering library based on the BSD packet
+--					filter (BPF)
+--
+--	DATE:			May 10, 2023
+--
+--	REVISIONS:		(Date and nic_description)
+--
+--				    May 15, 2023
+--				    Added personal function for assignment
+--
+--	DESIGNERS:		Based on the code by Martin Casado Aman Abdulla, Aman Abdulla
+--					Also code was taken from tcpdump source, namely the following files..
+--					print-ether.c
+--					print-ip.c
+--					ip.h
+--					Modified & redesigned: Aman Abdulla: 2006, 2014, 2016
+--
+--	STUDENT:		HyungJoon LEE
+-------------------------------------------------------------------------------------------------*/
+
 #include "target.h"
 #include "extern.h"
 

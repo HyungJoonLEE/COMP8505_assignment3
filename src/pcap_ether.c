@@ -1,3 +1,24 @@
+/*---------------------------------------------------------------------------------------------
+--	SOURCE FILE:	proc_ether.c -   Process Ethernet packets
+--
+--	FUNCTIONS:		libpcap - packet filtering library based on the BSD packet
+--					filter (BPF)
+--
+--	DATE:			May 15, 2023
+--				    Added personal function for assignment
+--
+--	REVISIONS:		(Date and nic_description)
+--
+--	DESIGNERS:		Based on the code by Martin Casado, Aman Abdulla
+--					Also code was taken from tcpdump source, namely the following files..
+--					print-ether.c
+--					print-ip.c
+--					ip.h
+--					Modified & redesigned: Aman Abdulla: April 23, 2006
+--
+--	STUDENT:		HyungJoon LEE
+-------------------------------------------------------------------------------------------------*/
+
 #include "target.h"
 #include "extern.h"
 

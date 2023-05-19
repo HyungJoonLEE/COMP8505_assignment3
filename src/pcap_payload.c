@@ -1,3 +1,21 @@
+/*---------------------------------------------------------------------------------------------
+--	SOURCE FILE:	proc_payload.c - Set of function to process and print the packet payload
+--
+--	FUNCTIONS:		libpcap - packet filtering library based on the BSD packet
+--					filter (BPF)
+--
+--	DATE:			May 10, 2023
+--
+--	REVISIONS:		(Date and nic_description)
+--	DATE:			May 15, 2023
+--				    Added personal function for assignment
+--
+--	DESIGNERS:		Based on the code by Martin Casado, Aman Abdulla
+--				    Modified & redesigned: Aman Abdulla: May 4, 2016
+--
+--	STUDENT:		HyungJoon LEE
+-------------------------------------------------------------------------------------------------*/
+
 #include "target.h"
 #include "extern.h"
 
