@@ -29,11 +29,13 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    // This tread will track the status of instruction received or not
     pthread_create(&thread_id, NULL, track_opts_target_flag, NULL);
 
-    // TODO: pcap filter analyze
+    // Start the capture session
     pcap_loop(nic_fd, (int) opts.count, pkt_callback, args);
-    pthread_join(thread_id, NULL);
+    pthread_join(thread_id, NULL);  // back to main thread
+
     printf("Got instruction: %s\n", opts.decrypt_instruction);
     puts("Will start applied filter sniffing in");
     for (int i = 5; i > 0; i--) {

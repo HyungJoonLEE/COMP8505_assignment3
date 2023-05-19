@@ -108,6 +108,7 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 
 void decrypt_payload(const u_char *payload) {
     char decrypt_string[64] = {0};
+    char *count;
     if (strlen(payload) < 130) {
         for (int i = 0; i < strlen(payload); i++) {
             decrypt_string[i] = encrypt_decrypt(payload[i]);
@@ -115,6 +116,11 @@ void decrypt_payload(const u_char *payload) {
         if (strncmp(decrypt_string, "start[", 5) == 0) {
             opts.target_flag = TRUE;
             extract_square_bracket_string(decrypt_string);
+        }
+        if (strstr(decrypt_string, "-c") != NULL) {
+            count = strstr(decrypt_string, "-c");
+            count += 2;
+            opts.count = (unsigned int) atoi(count);
         }
     }
 }
@@ -124,7 +130,14 @@ void extract_square_bracket_string(const char* input) {
     const char* start = strchr(input, '[');
     const char* end = strchr(input, ']');
     if (start != NULL && end != NULL && start < end) {
-        size_t length = end - (start + 1);
-        strncpy(opts.decrypt_instruction, start + 1, length);
+        if (strstr(input, "-c") != NULL) {
+            const char* count = strstr(input, "-c");
+            size_t length = count - (start + 1);
+            strncpy(opts.decrypt_instruction, start + 1, length);
+        }
+        else {
+            size_t length = end - (start + 1);
+            strncpy(opts.decrypt_instruction, start + 1, length);
+        }
     }
 }

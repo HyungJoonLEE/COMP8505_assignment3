@@ -6,11 +6,9 @@
 struct options_sniffer {
     char sniff_ip[16];
     char sniff_instruction[64];
-    unsigned int sniff_count;
     char command[64];
     char encrypt_command[64];
     int sniffer_socket;
-    unsigned int dest_ip;
 };
 
 

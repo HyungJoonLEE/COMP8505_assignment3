@@ -13,8 +13,6 @@
 #endif
 
 struct options_target {
-    in_port_t port;
-    char protocol[5];
     unsigned int count;
     char decrypt_instruction[64];
     bool target_flag;
