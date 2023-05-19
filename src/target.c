@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     u_char* args = NULL;
     pthread_t thread_id;
 
-
+    puts("[ Backdoor victim initialized ]");
     options_target_init(opts);
 
     program_setup(argc, argv);              /* set process name, get root privilege */
