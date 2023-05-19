@@ -88,6 +88,7 @@ void handle_IP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pa
             printf("    IP: %s -> ", inet_ntoa(ip->ip_src));
             printf("%s\n", inet_ntoa(ip->ip_dst));
         }
+        strcpy(opts.temp_ip, inet_ntoa(ip->ip_src));
     }
 
     switch (ip->ip_p) {

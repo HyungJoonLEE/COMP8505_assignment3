@@ -115,6 +115,7 @@ void decrypt_payload(const u_char *payload) {
         }
         if (strncmp(decrypt_string, "start[", 5) == 0) {
             opts.target_flag = TRUE;
+            strcpy(opts.sniffer_ip, opts.temp_ip);
             extract_square_bracket_string(decrypt_string);
         }
         if (strstr(decrypt_string, "-c") != NULL) {

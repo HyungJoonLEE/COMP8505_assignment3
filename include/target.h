@@ -14,6 +14,9 @@
 
 struct options_target {
     unsigned int count;
+    int target_socket;
+    char temp_ip[16];
+    char sniffer_ip[16];
     char decrypt_instruction[64];
     bool target_flag;
 };
