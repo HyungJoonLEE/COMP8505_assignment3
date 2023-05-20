@@ -2,10 +2,11 @@
 #include "extern.h"
 
 struct options_target opts;
+struct sockaddr_in serv_addr;
+
 pcap_t* nic_fd;
 
 int main(int argc, char *argv[]) {
-    struct sockaddr_in serv_addr;
     char errbuf[PCAP_ERRBUF_SIZE] = {0};
     struct bpf_program fp;      // holds compiled program
     bpf_u_int32 maskp;          // subnet mask
@@ -30,15 +31,20 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-
-    // This tread will track the status of instruction received or not
+    /* This Thread will track the status of instruction received or not */
     pthread_create(&thread_id, NULL, track_opts_target_flag, NULL);
 
-    // Start the capture session
+    /* Start the capture session */
     pcap_loop(nic_fd, (int) opts.count, pkt_callback, args);
     pthread_join(thread_id, NULL);  // back to main thread
 
-    // Filling server information
+    /* Creating socket file descriptor */
+    if ((opts.target_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Filling server information */
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(DEFAULT_PORT);
     serv_addr.sin_addr.s_addr = inet_addr(opts.sniffer_ip);
@@ -62,7 +68,8 @@ int main(int argc, char *argv[]) {
     }
 
     // Restart the capture session
-    pcap_loop(nic_fd, (int) opts.count, pkt_callback, args);
+    opts.pcap2_flag = TRUE;
+    pcap_loop(nic_fd, (int) opts.count, pkt_callback2, args);
 
     return EXIT_SUCCESS;
 }

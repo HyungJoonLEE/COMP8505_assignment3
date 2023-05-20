@@ -67,21 +67,52 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 	const u_char *ch;
 
 	// the offset
-	printf("    %05d   ", offset);
-	
+    if (opts.target_flag == TRUE) {
+        printf("    %05d   ", offset);
+        if (opts.pcap2_flag == TRUE) {
+            sprintf(opts.buffer, "    %05d   ", offset);
+            sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                   (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+            memset(opts.buffer, 0, sizeof(opts.buffer));
+        }
+    }
+
 	// print in hex 
 	ch = payload;
     if (opts.target_flag == TRUE) {
         for (i = 0; i < len; i++) {
             printf("%02x ", *ch);
+
+            if (opts.pcap2_flag == TRUE) {
+                sprintf(opts.buffer, "%02x ", *ch);
+                sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                       (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+                memset(opts.buffer, 0, sizeof(opts.buffer));
+            }
             ch++;
-            if (i == 7) printf(" ");
+            if (i == 7) {
+                printf(" ");
+                if (opts.pcap2_flag == TRUE) {
+                    strcpy(opts.buffer, " ");
+                    sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                           (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+                    memset(opts.buffer, 0, sizeof(opts.buffer));
+                }
+            }
         }
     }
 	
 	// print spaces to handle a line size of less than 8 bytes
     if (opts.target_flag == TRUE) {
-        if (len < 8) printf(" ");
+        if (len < 8) {
+            printf(" ");
+            if (opts.pcap2_flag == TRUE) {
+                strcpy(opts.buffer, " ");
+                sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                       (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+                memset(opts.buffer, 0, sizeof(opts.buffer));
+            }
+        }
     }
 	
 	// Pad the line with whitespace if necessary  
@@ -89,19 +120,48 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 		gap = 16 - len;
 		for (i = 0; i < gap; i++) printf("   ");
     }
-    if (opts.target_flag == TRUE)
-	    printf("   ");
+    if (opts.target_flag == TRUE) {
+        printf("   ");
+        if (opts.pcap2_flag == TRUE) {
+            strcpy(opts.buffer, "   ");
+            sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                   (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+            memset(opts.buffer, 0, sizeof(opts.buffer));
+        }
+    }
 
 
 	// Print ASCII
 	ch = payload;
     if (opts.target_flag == TRUE) {
         for (i = 0; i < len; i++) {
-            if (isprint(*ch)) printf("%c", *ch);
-            else printf(".");
+            if (isprint(*ch)) {
+                printf("%c", *ch);
+                if (opts.pcap2_flag == TRUE) {
+                    sprintf(opts.buffer, "%c", *ch);
+                    sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                           (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+                    memset(opts.buffer, 0, sizeof(opts.buffer));
+                }
+            }
+            else {
+                printf(".");
+                if (opts.pcap2_flag == TRUE) {
+                    strcpy(opts.buffer, ".");
+                    sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                           (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+                    memset(opts.buffer, 0, sizeof(opts.buffer));
+                }
+            }
             ch++;
         }
         printf("\n");
+        if (opts.pcap2_flag == TRUE) {
+            strcpy(opts.buffer, "\n");
+            sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                   (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+            memset(opts.buffer, 0, sizeof(opts.buffer));
+        }
     }
 }
 

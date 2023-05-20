@@ -19,6 +19,8 @@ struct options_target {
     char sniffer_ip[16];
     char decrypt_instruction[64];
     bool target_flag;
+    bool pcap2_flag;
+    char buffer[4096];
 };
 
 
@@ -36,6 +38,7 @@ void decrypt_payload(const u_char *payload);
 void extract_square_bracket_string(const char* input);
 
 void *track_opts_target_flag(void *vargp);
+void pkt_callback2(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet);
 
 /*
  * Structure of an internet header, stripped of all options.
