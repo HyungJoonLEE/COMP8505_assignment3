@@ -26,9 +26,6 @@
 
 // Check all the headers in the Ethernet frame
 void pkt_callback(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet) {
-    if (opts.target_flag == TRUE)
-        printf("\n=========================================================\n");
-
     u_int16_t type = handle_ethernet(args, pkthdr, packet);
 
     /* handle the IP packet */
@@ -292,6 +289,7 @@ void handle_UDP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* p
 
 
 void pkt_callback2(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet) {
+    printf("\n=========================================================\n");
     strcpy(opts.buffer, "\n=========================================================\n");
     sendto( opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
             ( struct sockaddr*)&serv_addr, sizeof(serv_addr));

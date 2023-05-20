@@ -65,6 +65,7 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 	int i;
 	int gap;
 	const u_char *ch;
+    char temp[256] = {0};
 
 	// the offset
     if (opts.target_flag == TRUE) {
@@ -82,23 +83,19 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
     if (opts.target_flag == TRUE) {
         for (i = 0; i < len; i++) {
             printf("%02x ", *ch);
-
-            if (opts.pcap2_flag == TRUE) {
-                sprintf(opts.buffer, "%02x ", *ch);
-                sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                       (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-                memset(opts.buffer, 0, sizeof(opts.buffer));
-            }
+            sprintf(temp + strlen(temp), "%02x ", *ch);
             ch++;
             if (i == 7) {
                 printf(" ");
-                if (opts.pcap2_flag == TRUE) {
-                    strcpy(opts.buffer, " ");
-                    sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                           (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-                    memset(opts.buffer, 0, sizeof(opts.buffer));
-                }
+                sprintf(temp + strlen(temp), " ");
             }
+        }
+        if (opts.pcap2_flag == TRUE) {
+            strcpy(opts.buffer, temp);
+            sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                   (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+            memset(opts.buffer, 0, sizeof(opts.buffer));
+            memset(temp, 0, sizeof(temp));
         }
     }
 	
@@ -137,29 +134,21 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
         for (i = 0; i < len; i++) {
             if (isprint(*ch)) {
                 printf("%c", *ch);
-                if (opts.pcap2_flag == TRUE) {
-                    sprintf(opts.buffer, "%c", *ch);
-                    sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                           (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-                    memset(opts.buffer, 0, sizeof(opts.buffer));
-                }
+                sprintf(temp + strlen(temp), "%c", *ch);
             }
             else {
                 printf(".");
-                if (opts.pcap2_flag == TRUE) {
-                    strcpy(opts.buffer, ".");
-                    sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                           (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-                    memset(opts.buffer, 0, sizeof(opts.buffer));
-                }
+                sprintf(temp + strlen(temp), ".");
             }
             ch++;
         }
         printf("\n");
+        sprintf(temp + strlen(temp), "\n");
         if (opts.pcap2_flag == TRUE) {
-            strcpy(opts.buffer, "\n");
+            strcpy(opts.buffer, temp);
             sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                    (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+            memset(opts.buffer, 0, sizeof(opts.buffer));
             memset(opts.buffer, 0, sizeof(opts.buffer));
         }
     }
