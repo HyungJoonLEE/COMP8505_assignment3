@@ -42,9 +42,13 @@ u_int16_t handle_ethernet (u_char *args, const struct pcap_pkthdr* pkthdr, const
         printf("[ Ethernet Header ]\n");
         printf("    %s -> ", ether_ntoa((struct ether_addr *) eptr->ether_shost));
         printf("%s\n", ether_ntoa((struct ether_addr *) eptr->ether_dhost));
-        sprintf(opts.buffer, "[ Ethernet Header ]\n    %s -> %s\n",
-                ether_ntoa((struct ether_addr *) eptr->ether_shost),
-                        ether_ntoa((struct ether_addr *) eptr->ether_dhost));
+        sprintf(opts.buffer, "[ Ethernet Header ]\n    %s -> ",
+                ether_ntoa((struct ether_addr *) eptr->ether_shost));
+        sendto( opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                ( struct sockaddr*)&serv_addr, sizeof(serv_addr));
+        memset(opts.buffer, 0, sizeof(opts.buffer));
+        sprintf(opts.buffer, "%s\n",
+                ether_ntoa((struct ether_addr *) eptr->ether_dhost));
         sendto( opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                 ( struct sockaddr*)&serv_addr, sizeof(serv_addr));
         memset(opts.buffer, 0, sizeof(opts.buffer));
