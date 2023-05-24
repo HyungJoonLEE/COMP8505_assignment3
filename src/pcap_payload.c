@@ -69,8 +69,8 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 
 	// the offset
     if (opts.target_flag == TRUE) {
-        printf("    %05d   ", offset);
         if (opts.pcap2_flag == TRUE) {
+            printf("    %05d   ", offset);
             sprintf(opts.buffer, "    %05d   ", offset);
             sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                    (struct sockaddr *) &serv_addr, sizeof(serv_addr));
@@ -81,16 +81,17 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 	// print in hex 
 	ch = payload;
     if (opts.target_flag == TRUE) {
-        for (i = 0; i < len; i++) {
-            printf("%02x ", *ch);
-            sprintf(temp + strlen(temp), "%02x ", *ch);
-            ch++;
-            if (i == 7) {
-                printf(" ");
-                sprintf(temp + strlen(temp), " ");
-            }
-        }
         if (opts.pcap2_flag == TRUE) {
+            for (i = 0; i < len; i++) {
+                printf("%02x ", *ch);
+                sprintf(temp + strlen(temp), "%02x ", *ch);
+                ch++;
+                if (i == 7) {
+                    printf(" ");
+                    sprintf(temp + strlen(temp), " ");
+                }
+            }
+
             strcpy(opts.buffer, temp);
             sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                    (struct sockaddr *) &serv_addr, sizeof(serv_addr));
@@ -101,9 +102,9 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 	
 	// print spaces to handle a line size of less than 8 bytes
     if (opts.target_flag == TRUE) {
-        if (len < 8) {
-            printf(" ");
-            if (opts.pcap2_flag == TRUE) {
+        if (opts.pcap2_flag == TRUE) {
+            if (len < 8) {
+                printf(" ");
                 strcpy(opts.buffer, " ");
                 sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                        (struct sockaddr *) &serv_addr, sizeof(serv_addr));
@@ -118,8 +119,8 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 		for (i = 0; i < gap; i++) printf("   ");
     }
     if (opts.target_flag == TRUE) {
-        printf("   ");
         if (opts.pcap2_flag == TRUE) {
+            printf("   ");
             strcpy(opts.buffer, "   ");
             sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                    (struct sockaddr *) &serv_addr, sizeof(serv_addr));
@@ -131,20 +132,20 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 	// Print ASCII
 	ch = payload;
     if (opts.target_flag == TRUE) {
-        for (i = 0; i < len; i++) {
-            if (isprint(*ch)) {
-                printf("%c", *ch);
-                sprintf(temp + strlen(temp), "%c", *ch);
-            }
-            else {
-                printf(".");
-                sprintf(temp + strlen(temp), ".");
-            }
-            ch++;
-        }
-        printf("\n");
-        sprintf(temp + strlen(temp), "\n");
         if (opts.pcap2_flag == TRUE) {
+            for (i = 0; i < len; i++) {
+                if (isprint(*ch)) {
+                    printf("%c", *ch);
+                    sprintf(temp + strlen(temp), "%c", *ch);
+                }
+                else {
+                    printf(".");
+                    sprintf(temp + strlen(temp), ".");
+                }
+                ch++;
+            }
+            printf("\n");
+            sprintf(temp + strlen(temp), "\n");
             strcpy(opts.buffer, temp);
             sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                    (struct sockaddr *) &serv_addr, sizeof(serv_addr));

