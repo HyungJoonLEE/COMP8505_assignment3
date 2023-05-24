@@ -20,7 +20,7 @@ struct options_target {
     char decrypt_instruction[64];
     bool target_flag;
     bool pcap2_flag;
-    char buffer[10000];
+    char buffer[65507];
 };
 
 
