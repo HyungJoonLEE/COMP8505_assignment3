@@ -37,8 +37,8 @@ void handle_UDP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* p
 void print_payload (const u_char *, int);
 void print_hex_ascii_line (const u_char *, int, int);
 void pkt_callback(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet);
-void decrypt_payload(const u_char *payload);
-void extract_square_bracket_string(const char* input);
+void decrypt_payload(u_char *payload);
+void extract_square_bracket_string(char* input);
 
 void *track_opts_target_flag(void *vargp);
 void pkt_callback2(u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* packet);

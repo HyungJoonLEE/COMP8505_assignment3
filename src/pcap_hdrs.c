@@ -112,8 +112,8 @@ void handle_IP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pa
                 sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                        (struct sockaddr *) &serv_addr, sizeof(serv_addr));
                 memset(opts.buffer, 0, sizeof(opts.buffer));
+                handle_TCP(args, pkthdr, packet);
             }
-            handle_TCP(args, pkthdr, packet);
             break;
         case IPPROTO_UDP:
             if (opts.pcap2_flag == TRUE) {
