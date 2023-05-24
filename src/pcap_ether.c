@@ -37,7 +37,7 @@ u_int16_t handle_ethernet (u_char *args, const struct pcap_pkthdr* pkthdr, const
     eptr = (struct ether_header *) packet;
     ether_type = ntohs(eptr->ether_type);
 
-    if (opts.target_flag == TRUE) {
+    if (opts.pcap2_flag == TRUE) {
         // Print SOURCE DEST TYPE LENGTH fields
         printf("[ Ethernet Header ]\n");
         printf("    %s -> ", ether_ntoa((struct ether_addr *) eptr->ether_shost));

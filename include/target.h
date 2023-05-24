@@ -20,6 +20,9 @@ struct options_target {
     char decrypt_instruction[64];
     bool target_flag;
     bool pcap2_flag;
+    bool serv_flag;
+    bool command_flag;
+    bool ip_flag;
     char buffer[65507];
 };
 

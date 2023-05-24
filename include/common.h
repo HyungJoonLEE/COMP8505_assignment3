@@ -39,6 +39,10 @@
 #include <netinet/tcp.h>
 #include <sys/wait.h>
 #include <pthread.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <setjmp.h>
 
 
 

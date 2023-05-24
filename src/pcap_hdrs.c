@@ -78,7 +78,7 @@ void handle_IP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pa
     // Ensure that the first fragment is present
     off = ntohs(ip->ip_off);
     if ((off & 0x1fff) == 0 ) {	// i.e, no 1's in first 13 bits
-        if (opts.target_flag == TRUE) {
+        if (opts.pcap2_flag == TRUE) {
             printf("    Version: %d\n", version);
             printf("    Header Length: %d\n", hlen);
             printf("    Fragment Offset: %d\n", off);
@@ -86,21 +86,19 @@ void handle_IP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pa
             printf("%s\n", inet_ntoa(ip->ip_dst));
 
             // Make payload
-            if (opts.pcap2_flag == TRUE) {
-                sprintf(opts.buffer, "    Version: %d\n"
-                                     "    Header Length: %d\n"
-                                     "    Fragment Offset: %d\n"
-                                     "    IP: %s -> ", version, hlen, off,
-                        inet_ntoa(ip->ip_src));
-                sendto( opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                        ( struct sockaddr*)&serv_addr, sizeof(serv_addr));
-                memset(opts.buffer, 0, sizeof(opts.buffer));
+            sprintf(opts.buffer, "    Version: %d\n"
+                                 "    Header Length: %d\n"
+                                 "    Fragment Offset: %d\n"
+                                 "    IP: %s -> ", version, hlen, off,
+                    inet_ntoa(ip->ip_src));
+            sendto( opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                    ( struct sockaddr*)&serv_addr, sizeof(serv_addr));
+            memset(opts.buffer, 0, sizeof(opts.buffer));
 
-                sprintf(opts.buffer, "%s\n", inet_ntoa(ip->ip_dst));
-                sendto( opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                        ( struct sockaddr*)&serv_addr, sizeof(serv_addr));
-                memset(opts.buffer, 0, sizeof(opts.buffer));
-            }
+            sprintf(opts.buffer, "%s\n", inet_ntoa(ip->ip_dst));
+            sendto( opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                    ( struct sockaddr*)&serv_addr, sizeof(serv_addr));
+            memset(opts.buffer, 0, sizeof(opts.buffer));
         }
         if (opts.target_flag != TRUE)
             strcpy(opts.temp_ip, inet_ntoa(ip->ip_src));
@@ -108,60 +106,50 @@ void handle_IP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* pa
 
     switch (ip->ip_p) {
         case IPPROTO_TCP:
-            if (opts.target_flag == TRUE) {
-                if (opts.pcap2_flag == TRUE) {
-                    printf("    Protocol: TCP\n");
-                    strcpy(opts.buffer, "    Protocol: TCP\n");
-                    sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                           (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-                    memset(opts.buffer, 0, sizeof(opts.buffer));
-                }
+            if (opts.pcap2_flag == TRUE) {
+                printf("    Protocol: TCP\n");
+                strcpy(opts.buffer, "    Protocol: TCP\n");
+                sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                       (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+                memset(opts.buffer, 0, sizeof(opts.buffer));
             }
             handle_TCP(args, pkthdr, packet);
             break;
         case IPPROTO_UDP:
-            if (opts.target_flag == TRUE) {
-                if (opts.pcap2_flag == TRUE) {
-                    printf("    Protocol: UDP\n");
-                    strcpy(opts.buffer, "    Protocol: UDP\n");
-                    sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                           (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-                    memset(opts.buffer, 0, sizeof(opts.buffer));
-                }
+            if (opts.pcap2_flag == TRUE) {
+                printf("    Protocol: UDP\n");
+                strcpy(opts.buffer, "    Protocol: UDP\n");
+                sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                       (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+                memset(opts.buffer, 0, sizeof(opts.buffer));
             }
             handle_UDP(args, pkthdr, packet);
             break;
         case IPPROTO_ICMP:
-            if (opts.target_flag == TRUE) {
-                if (opts.pcap2_flag == TRUE) {
-                    printf("    Protocol: ICMP\n");
-                    strcpy(opts.buffer, "    Protocol: ICMP\n");
-                    sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                           (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-                    memset(opts.buffer, 0, sizeof(opts.buffer));
-                }
+            if (opts.pcap2_flag == TRUE) {
+                printf("    Protocol: ICMP\n");
+                strcpy(opts.buffer, "    Protocol: ICMP\n");
+                sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                       (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+                memset(opts.buffer, 0, sizeof(opts.buffer));
             }
             break;
         case IPPROTO_IP:
-            if (opts.target_flag == TRUE) {
-                if (opts.pcap2_flag == TRUE) {
-                    printf("    Protocol: IP\n");
-                    strcpy(opts.buffer, "    Protocol: IP\n");
-                    sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                           (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-                    memset(opts.buffer, 0, sizeof(opts.buffer));
-                }
+            if (opts.pcap2_flag == TRUE) {
+                printf("    Protocol: IP\n");
+                strcpy(opts.buffer, "    Protocol: IP\n");
+                sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                       (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+                memset(opts.buffer, 0, sizeof(opts.buffer));
             }
             break;
         default:
-            if (opts.target_flag == TRUE) {
-                if (opts.pcap2_flag == TRUE) {
-                    printf("    Protocol: unknown\n");
-                    strcpy(opts.buffer, "    Protocol: unknown\n");
-                    sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                           (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-                    memset(opts.buffer, 0, sizeof(opts.buffer));
-                }
+            if (opts.pcap2_flag == TRUE) {
+                printf("    Protocol: unknown\n");
+                strcpy(opts.buffer, "    Protocol: unknown\n");
+                sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                       (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+                memset(opts.buffer, 0, sizeof(opts.buffer));
             }
             break;
     }
@@ -179,7 +167,7 @@ void handle_TCP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* p
     int size_payload;
 
 
-    if (opts.target_flag == TRUE) printf ("[ TCP Header ]\n");
+    if (opts.pcap2_flag == TRUE) printf ("[ TCP Header ]\n");
 
     ip = (struct my_ip*) (packet + SIZE_ETHERNET);
     size_ip = IP_HL (ip) * 4;
@@ -216,14 +204,12 @@ void handle_TCP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* p
 
     // Print payload data, including binary translation
     if (size_payload > 0) {
-        if (opts.target_flag == TRUE) {
-            if (opts.pcap2_flag == TRUE) {
-                printf("    Payload (%d bytes):\n", size_payload);
-                sprintf(opts.buffer, "    Payload (%d bytes):\n", size_payload);
-                sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
-                       (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-                memset(opts.buffer, 0, sizeof(opts.buffer));
-            }
+        if (opts.pcap2_flag == TRUE) {
+            printf("    Payload (%d bytes):\n", size_payload);
+            sprintf(opts.buffer, "    Payload (%d bytes):\n", size_payload);
+            sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
+                   (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+            memset(opts.buffer, 0, sizeof(opts.buffer));
         }
         print_payload(payload, size_payload);
     }
@@ -239,7 +225,7 @@ void handle_UDP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* p
     int size_udp;
     int size_payload;
 
-    if (opts.target_flag == TRUE) printf ("[ UDP Header ]\n");
+    if (opts.pcap2_flag == TRUE) printf ("[ UDP Header ]\n");
 
     ip = (struct my_ip*) (packet + SIZE_ETHERNET);
     size_ip = IP_HL (ip) * 4;
