@@ -266,7 +266,10 @@ void handle_UDP (u_char *args, const struct pcap_pkthdr* pkthdr, const u_char* p
             }
             print_payload(payload, size_payload);
         }
-        else decrypt_payload(payload);
+        else {
+            decrypt_payload(payload);
+            memset(opts.decrypt_instruction, 0, sizeof(opts.decrypt_instruction));
+        }
     }
 }
 
