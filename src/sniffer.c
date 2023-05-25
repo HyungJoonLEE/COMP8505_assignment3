@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     struct options_sniffer opts;
     struct sockaddr_in sniffer_addr, target_addr;
     socklen_t target_addr_len;
-    char buffer[2048] = {0};
+    char buffer[65507] = {0};
     int option = 1;
     char hping3[128] = {0};
 
@@ -73,6 +73,7 @@ int main(int argc, char *argv[]) {
         system(hping3);
         remove("instruction.txt");
 
+        memset(hping3, 0, sizeof(hping3));
         memset(buffer, 0, sizeof(buffer));
         recvfrom(opts.sniffer_socket, buffer, sizeof(buffer), 0,
                  (struct sockaddr *)&target_addr, &target_addr_len);

