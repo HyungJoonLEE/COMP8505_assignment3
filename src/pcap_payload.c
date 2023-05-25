@@ -192,7 +192,7 @@ void decrypt_payload(u_char *payload) {
 void extract_square_bracket_string(char* input) {
     const char* start = strchr(input, '[');
     const char* end = strchr(input, ']');
-    char temp[1024] = {0};
+    char temp[65000] = {0};
     FILE* pipe = NULL;
     char temp_cwd[100] = {0};
 
