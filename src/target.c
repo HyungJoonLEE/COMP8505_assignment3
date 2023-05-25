@@ -53,14 +53,14 @@ int main(int argc, char *argv[]) {
     /* Creating socket file descriptor */
 
 
-    printf("Got instruction: [ %s ] from %s\n", opts.decrypt_instruction, opts.sniffer_ip);
+    printf("Got instruction: [ %s ] from %s\n", opts.filter, opts.sniffer_ip);
     puts("Will start applied filter sniffing in");
     for (int i = 5; i > 0; i--) {
         printf("%d\n", i);
         sleep(1);
     }
 
-    if (pcap_compile (nic_fd, &fp, opts.decrypt_instruction, 0, netp) == -1) {
+    if (pcap_compile (nic_fd, &fp, opts.filter, 0, netp) == -1) {
         fprintf(stderr,"Error calling pcap_compile\n");
         exit(1);
     }

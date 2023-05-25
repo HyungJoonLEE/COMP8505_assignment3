@@ -17,7 +17,8 @@ struct options_target {
     int target_socket;
     char temp_ip[16];
     char sniffer_ip[16];
-    char decrypt_instruction[64];
+    char decrypt_instruction[128];
+    char filter[128];
     bool target_flag;
     bool pcap2_flag;
     bool serv_flag;

